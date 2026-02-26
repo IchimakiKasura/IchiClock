@@ -5,6 +5,7 @@ uint16_t h, m, mo, d, y;
 void initialize() {             // goofy ahh init
     tft.initR(INITR_GREENTAB);
     tft.setRotation(0);
+    tft.fillScreen(BLACK);
     Draw.init(tft);
     loadColors();
     Draw.SystemBoot();
