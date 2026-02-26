@@ -4,7 +4,6 @@ uint16_t h, m, mo, d, y;
 
 void initialize() {             // goofy ahh init
     tft.initR(INITR_GREENTAB);
-    tft.fillScreen(BLACK);
     tft.setRotation(0);
     Draw.init(tft);
     loadColors();
@@ -17,6 +16,7 @@ void initialize() {             // goofy ahh init
     pinMode(BTN_SELECT, INPUT_PULLUP);
     pinMode(BTN_ADJUST, INPUT_PULLUP);
     pinMode(BUZZER, OUTPUT);
+    tft.fillScreen(BLACK);
 
     if(SETUP_TIME) rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
