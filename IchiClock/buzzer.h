@@ -43,7 +43,6 @@ void Jingle(uint8_t jingleNumber) {
 
     if(jingleNumber != FNAF_JINGLE) return;
     loadColors();
-    now = rtc.now();
-    Draw.Time(now);
-    Draw.Date(now);
+    Draw.Time();
+    Draw.Date();
 }

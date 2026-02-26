@@ -28,12 +28,12 @@ class DrawUI {
             _tft->print(t);
         }
         inline void _ProgressBar(int percent) {
-            byte x = 40, y = 150;
-            _tft->fillRect(x,     y,     42,                   1, WHITE);        // top
-            _tft->fillRect(x,     y+1,   1,                    4, WHITE);        // left
-            _tft->fillRect(x+41,  y+1,   1,                    4, WHITE);        // right
-            _tft->fillRect(x,     y+5,   42,                   1, WHITE);        // bottom
-            _tft->fillRect(x+1,   y+1,   (40 * percent) / 100, 4, ST77XX_GREEN); // fill
+            byte x = 40, y = 145;
+            _tft->fillRect(x,     y,     42,               1, WHITE);        // top
+            _tft->fillRect(x,     y+1,   1,                4, WHITE);        // left
+            _tft->fillRect(x+41,  y+1,   1,                4, WHITE);        // right
+            _tft->fillRect(x,     y+5,   42,               1, WHITE);        // bottom
+            _tft->fillRect(x+1,   y+1,   (40*percent)/100, 4, ST77XX_GREEN); // fill
         }
     public:
         DrawUI() = default;
@@ -110,29 +110,21 @@ class DrawUI {
                 dashColor = temp;
             }
             swapColors = !swapColors;
-            for (int x = 1; x < _tft->width(); x += 4 * 2) {                // top border
-                _tft->fillRect(x, 1, 4, 2, dashColor);
-                _tft->fillRect(x + 4, 1, 4, 2, fillColor);
+            for (int x = 1; x < _tft->width(); x += 4 * 2) {                // horizontal borders
+                _tft->fillRect(x      , 1  , 4, 2, dashColor);
+                _tft->fillRect(x + 4  , 1  , 4, 2, fillColor);
+                _tft->fillRect(x+2    , 38 , 4, 2, dashColor);
+                _tft->fillRect(x+2 + 4, 38 , 4, 2, fillColor);
+                _tft->fillRect(x+2    , 128, 4, 2, dashColor);
+                _tft->fillRect(x+2 + 4, 128, 4, 2, fillColor);
+                _tft->fillRect(x+2    , 158, 4, 2, dashColor);
+                _tft->fillRect(x+2 + 4, 158, 4, 2, fillColor);
             }
-            for (int x = 3; x < _tft->width() - 2; x += 4 * 2) {            // header border
-                _tft->fillRect(x, 40, 4, 2, dashColor);
-                _tft->fillRect(x + 4, 40, 4, 2, fillColor);
-            }
-            for (int x = 3; x < _tft->width() - 2; x += 4 * 2) {            // bottom text border
-                _tft->fillRect(x, 130, 4, 2, dashColor);
-                _tft->fillRect(x + 4, 130, 4, 2, fillColor);
-            }
-            for (int x = 3; x < _tft->width() - 2; x += 4 * 2) {            // bottom border
-                _tft->fillRect(x, _tft->height() - 2, 4, 2, dashColor);
-                _tft->fillRect(x + 4, _tft->height() - 2, 4, 2, fillColor);
-            }
-            for (int y = 1; y < _tft->height(); y += 4 * 2) {               // left border
-                _tft->fillRect(1, y, 2, 4, dashColor);
-                _tft->fillRect(1, y + 4, 2, 4, fillColor);
-            }
-            for (int y = 3; y < _tft->height(); y += 4 * 2) {               // rightborder
-                _tft->fillRect(_tft->width() - 2, y, 2, 4, dashColor);
-                _tft->fillRect(_tft->width() - 2, y + 4, 2, 4, fillColor);
+            for (int y = 1; y < _tft->height(); y += 4 * 2) {               // vertical borders
+                _tft->fillRect(1  , y  , 2, 4, dashColor);
+                _tft->fillRect(1  , y+4, 2, 4, fillColor);
+                _tft->fillRect(126, y+2, 2, 4, dashColor);
+                _tft->fillRect(126, y+6, 2, 4, fillColor);
             }
         }
         void TextColorChange(bool saveColor = false) {
