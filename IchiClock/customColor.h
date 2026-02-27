@@ -26,8 +26,8 @@ const uint16_t colors[] PROGMEM = {
     ORANGE
 };
 
-byte clock_color_index = 2;
-byte date_color_index = 3;
+byte clock_color_index = 1;
+byte date_color_index = 2;
 
 uint16_t clock_color() { return pgm_read_word(&colors[clock_color_index]); }
 uint16_t date_color()  { return pgm_read_word(&colors[date_color_index]); }
@@ -38,11 +38,17 @@ void saveColors() {
     EEPROM.update(ADDR_DATE_COLOR, date_color_index & 0xFF);
     EEPROM.update(ADDR_DATE_COLOR + 1, date_color_index >> 8);
 }
-
 void loadColors() {
     byte c = EEPROM.read(ADDR_CLOCK_COLOR) | (EEPROM.read(ADDR_CLOCK_COLOR + 1) << 8);
     byte d = EEPROM.read(ADDR_DATE_COLOR)  | (EEPROM.read(ADDR_DATE_COLOR + 1) << 8);
 
     if (c != 0xFFFF) clock_color_index = c;
     if (d != 0xFFFF) date_color_index  = d;
+}
+uint8_t rand(uint8_t num) { // goofy lightweight random
+    static uint8_t seed = 42;
+    seed ^= seed << 3;
+    seed ^= seed >> 5;
+    seed ^= seed << 1;
+    return seed % num;
 }

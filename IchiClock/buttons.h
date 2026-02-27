@@ -34,7 +34,7 @@ void handleSelectButton() {
         } 
         else if (!longHandled) {
             if (editMode) {
-                blinkState = !(lastBlink = 0);
+                Draw.blinkState = !(Draw.lastBlink = 0);
                 if (selected == FIELD_YEAR) saveToRTC();
                 else {
                     selected = (Field)((selected + 1) % NUM_FIELDS);
@@ -43,8 +43,8 @@ void handleSelectButton() {
             } 
             else {
                 loadFromRTC();
-                Draw.Header("SET TIME / DATE");
-                blinkState = 
+                Draw.Header(1);
+                Draw.blinkState = 
                 editMode = true;
                 quickBeepStart();
             }
@@ -55,8 +55,8 @@ void handleSelectButton() {
 void applyAdjustment(int dir) {
     int dim;
     switch (selected) {
-        case FIELD_HOUR:  h = (h + dir + 24) % 24; break;
-        case FIELD_MIN:   m = (m + dir + 60) % 60; break;
+        case FIELD_HOUR:  h = (h + dir + 24) % 24; h_edited = true; break;
+        case FIELD_MIN:   m = (m + dir + 60) % 60; m_edited = true; break;
         case FIELD_AMPM:  h = (h + 12) % 24; break;
         case FIELD_MONTH:
             mo = (mo + dir - 1 + 12) % 12 + 1;
@@ -130,8 +130,8 @@ void handleBothButtons() {
     if (adj) lastAdjust = now;
 
     if (sel && adj && abs((long)(lastSelect - lastAdjust)) < 200 && !editMode) {
-        Draw.Bottom("FNAF YAY!");
-        Jingle(FNAF_JINGLE);
+        Draw.Bottom("KONOSUBA!!");
+        Jingle(CHIISANA_BOKENSHA_JINGLE, 150);
         lastSelect = lastAdjust = 0;
         return;
     }

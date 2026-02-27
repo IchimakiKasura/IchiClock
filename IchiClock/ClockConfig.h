@@ -1,7 +1,7 @@
 #pragma once
 
 /* ============ TEXT SETTINGS ============ */
-#define HEADER_TEXT "ICHI'S CLOCK"
+#define HEADER_TEXT "MEGUMIN CLOCK"
 // Boot title is hardcoded no.
 
 #define TITLE_Y   55
@@ -19,7 +19,7 @@
 #define BOTTOM_SIZE  1
 
 /* ============ none ============ */
-#define STARTUP_JINGLE 0
+#define CHIISANA_BOKENSHA_JINGLE 0
 #define FNAF_JINGLE 1
 #define WESTMINISTER_CHIME_JINGLE 2
 #define NIGHT_JINGLE 3
@@ -27,65 +27,69 @@
   
 /* ============ VARIABLES ============ */
 const char* const monthNames[] PROGMEM = {
-  "JAN","FEB","MAR","APR","MAY","JUN",
-  "JUL","AUG","SEP","OCT","NOV","DEC"
+  "JAN ","FEB ","MAR ","APR ","MAY ","JUN ",
+  "JUL ","AUG ","SEP ","OCT ","NOV ","DEC "
 };
 const char* const daysFull[] PROGMEM = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 const char* const bottomMessages[] PROGMEM = {
   "Compiling reality",
+  "Explosion magic!",  
   "Debugging time...",
   "System stable(?)",
+  "Darkness, lend me", 
   "Running on coffee",
   "Trust the clock",
-  "Code never sleeps",
   "Awaiting interrupt",
   "Logic > emotions",
+  "Prepare to blast!", 
   "Firmware mode",
   "Still not working",
-  "Try rebooting :)",
   "One bug at a time",
+  "I cast my spell!",  
   "Delay ruins dreams",
-  "Probably wiring",
   "Measure twice",
   "Stay calibrated",
-  "Sensors watching",
+  "One shot, one kill",
   "Voltage is sacred",
-  "Ground is truth",
-  "Magic smoke = bad",
   "Nanoseconds pass",
+  "Nothing but boom!", 
   "Looping forever",
-  "Hello, universe",
   "Stack overflow :)",
   "No semicolon??",
+  "Magic is supreme",  
   "Undefined life",
   "Clock drift again",
   "Resistor missing",
-  "Did you save?",
   "Cache invalidated",
   "Reflash maybe?",
+  "Chaos reigns now",  
   "RTC never lies",
   "Bits are honest",
   "Signal detected",
   "Silence = error",
   "Try another pin",
+  "Final explosion!",  
   "Timing is tricky",
   "Read the datasheet",
   "Floating inputs!",
   "Check your GND",
+  "Witness my power",  
   "Baud mismatch?",
   "Calibrating luck",
   "Works on my PC",
   "Hardware issue :)",
-  "Still alive!"
+  "Final explosion!"   
 };
-const uint8_t totalMessages = 44;
+const uint8_t totalMessages = 46;
 
 enum Field { FIELD_HOUR, FIELD_MIN, FIELD_AMPM, FIELD_MONTH, FIELD_DAY, FIELD_YEAR };
 const uint8_t NUM_FIELDS = 6;
 Field selected = FIELD_HOUR;
 
 bool editMode = false,
-     adjustHeld = false;
+     adjustHeld = false,
+     h_edited = false,
+     m_edited = false;
 
 DateTime now, lastTime;
 uint8_t bottomIndex = 0;
@@ -93,4 +97,5 @@ static uint8_t lastBottomIndex = -1;
 
 unsigned long lastBottomUpdate = 0,
               borderLastUpdate = 0,
-              lastUpdate = 0;
+              lastUpdate = 0,
+              lastCheck = 0;

@@ -27,32 +27,34 @@ RTC_DS3231 rtc;
 
 void setup() {
     initialize();
-    Draw.Header();
-    Draw.Bottom(pgm_read_word_near(&bottomMessages[random(totalMessages)]));
+    Draw.Header(0);
+    Draw.Bottom(pgm_read_word_near(&bottomMessages[rand(totalMessages)]));
 }
 
 void loop() {
     now = rtc.now();
     
-    handleBothButtons();
     adjustHeld = digitalRead(BTN_ADJUST) == LOW;
 
     timeUpdate();
     bottomTextUpdate();
     borderUpdate();
 
-    CheckAlarm(now.hour(), now.minute(), now.second());
+    if(millis() - lastCheck >= 20) {
+        lastCheck = millis();
+        handleBothButtons();
+    };
 
-    delay(5);
+    CheckAlarm(now.hour(), now.minute(), now.second());
 }
 
 void timeUpdate() {
     if(editMode){
-        if(millis() - lastBlink >= 700){
-            lastBlink = millis();
-            blinkState = !blinkState;
-            if(now.hour() != h && selected != FIELD_HOUR) h = now.hour();
-            if(now.minute() != m && selected != FIELD_MIN) m = now.minute();
+        if(millis() - Draw.lastBlink >= 700){
+            Draw.lastBlink = millis();
+            Draw.blinkState = !Draw.blinkState;
+            if(now.hour() != h && selected != FIELD_HOUR && !h_edited) h = now.hour();
+            if(now.minute() != m && selected != FIELD_MIN && !m_edited) m = now.minute();
             DateTime temp(y, mo, d, h, m, now.second());
             refreshScreen(temp);
         }
@@ -69,7 +71,7 @@ void bottomTextUpdate() {
         lastBottomUpdate = millis();
         uint8_t newIndex;
         do {
-            newIndex = random(totalMessages);
+            newIndex = rand(totalMessages);
         } while (newIndex == lastBottomIndex && totalMessages > 1);
         lastBottomIndex = newIndex;
         bottomIndex = newIndex;

@@ -5,11 +5,11 @@ uint16_t h, m, mo, d, y;
 void initialize() {             // goofy ahh init
     tft.initR(INITR_GREENTAB);
     tft.setRotation(0);
-    tft.fillScreen(BLACK);
+    tft.fillScreen(0x18A8);
     Draw.init(tft);
     loadColors();
     Draw.SystemBoot();
-    Jingle(STARTUP_JINGLE);
+    Jingle(CHIISANA_BOKENSHA_JINGLE);
     delay(100);
     Draw.FakeLoading();
     Wire.begin();
@@ -17,7 +17,7 @@ void initialize() {             // goofy ahh init
     pinMode(BTN_SELECT, INPUT_PULLUP);
     pinMode(BTN_ADJUST, INPUT_PULLUP);
     pinMode(BUZZER, OUTPUT);
-    tft.fillScreen(BLACK);
+    tft.fillScreen(0x18A8);
 
     if(SETUP_TIME) rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
@@ -38,7 +38,7 @@ inline void saveToRTC() {
     rtc.adjust(DateTime(y, mo, d, h, m, now.second()));
     editMode = false;
     selected = FIELD_HOUR;
-    Draw.Header();
+    Draw.Header(0);
     refreshScreen();
     quickBeepStart();
 }
