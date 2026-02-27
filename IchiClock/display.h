@@ -143,7 +143,7 @@ class DrawUI {
         }
         void TextColorChange(bool saveColor = false) {
             clock_color_index = (clock_color_index + 1) % 8;
-            date_color_index = (clock_color_index + 1 + rand(7)) % 8;
+            date_color_index = (clock_color_index + 1 + random(7)) % 8;
             if(date_color_index == clock_color_index) date_color_index = (date_color_index + 1) % 8;
             CheckeredBorders(pgm_read_word(&colors[clock_color_index]), pgm_read_word(&colors[date_color_index]));
             Time();

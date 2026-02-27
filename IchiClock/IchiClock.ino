@@ -28,7 +28,7 @@ RTC_DS3231 rtc;
 void setup() {
     initialize();
     Draw.Header(0);
-    Draw.Bottom(pgm_read_word_near(&bottomMessages[rand(totalMessages)]));
+    Draw.Bottom(pgm_read_word_near(&bottomMessages[random(totalMessages)]));
 }
 
 void loop() {
@@ -71,7 +71,7 @@ void bottomTextUpdate() {
         lastBottomUpdate = millis();
         uint8_t newIndex;
         do {
-            newIndex = rand(totalMessages);
+            newIndex = random(totalMessages);
         } while (newIndex == lastBottomIndex && totalMessages > 1);
         lastBottomIndex = newIndex;
         bottomIndex = newIndex;

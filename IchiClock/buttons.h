@@ -44,8 +44,7 @@ void handleSelectButton() {
             else {
                 loadFromRTC();
                 Draw.Header(1);
-                Draw.blinkState = 
-                editMode = true;
+                Draw.blinkState = editMode = true;
                 quickBeepStart();
             }
         }
