@@ -15,7 +15,7 @@
 #define MAGENTA ST77XX_MAGENTA
 #define GREEN   ST77XX_GREEN
 
-const uint16_t colors[] PROGMEM = {
+const uint16_t colors[8] PROGMEM = {
     BLUE,
     RED,
     YELLOW,
@@ -44,4 +44,11 @@ void loadColors() {
 
     if (c != 0xFFFF) clock_color_index = c;
     if (d != 0xFFFF) date_color_index  = d;
+}
+uint8_t rand(uint8_t num) { // goofy lightweight random
+    static uint8_t seed = 42;
+    seed ^= seed << 3;
+    seed ^= seed >> 5;
+    seed ^= seed << 1;
+    return seed % num;
 }

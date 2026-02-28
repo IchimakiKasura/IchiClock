@@ -26,12 +26,20 @@
 #define SAMSUNG 4
   
 /* ============ VARIABLES ============ */
-const char* const monthNames[] PROGMEM = {
+const char monthNames[][5] PROGMEM = {
   "JAN ","FEB ","MAR ","APR ","MAY ","JUN ",
   "JUL ","AUG ","SEP ","OCT ","NOV ","DEC "
 };
-const char* const daysFull[] PROGMEM = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
-const char* const bottomMessages[] PROGMEM = {
+const char daysFull[][9] PROGMEM = {
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+};
+const char bottomMessages[][20] PROGMEM = {
   "Compiling reality",
   "Explosion magic!",  
   "Debugging time...",
@@ -54,7 +62,7 @@ const char* const bottomMessages[] PROGMEM = {
   "Nanoseconds pass",
   "Nothing but boom!", 
   "Looping forever",
-  "Stack overflow :)",
+  "Stack overflow",
   "No semicolon??",
   "Magic is supreme",  
   "Undefined life",
@@ -77,13 +85,11 @@ const char* const bottomMessages[] PROGMEM = {
   "Baud mismatch?",
   "Calibrating luck",
   "Works on my PC",
-  "Hardware issue :)",
-  "Final explosion!"   
+  "Hardware issue",
+  "Final explosion!"
 };
-const uint8_t totalMessages = 46;
 
 enum Field { FIELD_HOUR, FIELD_MIN, FIELD_AMPM, FIELD_MONTH, FIELD_DAY, FIELD_YEAR };
-const uint8_t NUM_FIELDS = 6;
 Field selected = FIELD_HOUR;
 
 bool editMode = false,

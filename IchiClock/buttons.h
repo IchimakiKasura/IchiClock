@@ -37,7 +37,7 @@ void handleSelectButton() {
                 Draw.blinkState = !(Draw.lastBlink = 0);
                 if (selected == FIELD_YEAR) saveToRTC();
                 else {
-                    selected = (Field)((selected + 1) % NUM_FIELDS);
+                    selected = (Field)((selected + 1) % 6);
                     quickBeepStart();
                 }
             } 
@@ -121,6 +121,8 @@ void handleAdjustButton() {
     lastState = state;
 }
 void handleBothButtons() {
+    if(jingleState.playing) return;
+
     unsigned long now = millis();
     bool sel = digitalRead(BTN_SELECT) == LOW;
     bool adj = digitalRead(BTN_ADJUST) == LOW;
@@ -130,7 +132,7 @@ void handleBothButtons() {
 
     if (sel && adj && abs((long)(lastSelect - lastAdjust)) < 200 && !editMode) {
         Draw.Bottom("KONOSUBA!!");
-        Jingle(CHIISANA_BOKENSHA_JINGLE, 150);
+        Jingle(CHIISANA_BOKENSHA_JINGLE, false, true, 150);
         lastSelect = lastAdjust = 0;
         return;
     }

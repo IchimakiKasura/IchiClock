@@ -10,7 +10,7 @@ class DrawUI {
             uint16_t _clockW, _clockH;
             if (_clockBoundsCached) return;
             int16_t x1, y1;
-            _tft->getTextBounds("00:00", 0, 0, &x1, &y1, &_clockW, &_clockH);
+            _tft->getTextBounds(F("00:00"), 0, 0, &x1, &y1, &_clockW, &_clockH);
             _clockX = (_tft->width() - _clockW) / 2;
             _clockBoundsCached = true;
         }
@@ -89,16 +89,16 @@ class DrawUI {
             bool hideDay = _hideField(FIELD_DAY);
             bool hideYr  = _hideField(FIELD_YEAR);
             uint16_t c = ((hideMo || hideDay || hideYr) ? RED : date_color());
-            char Buf[13];
+            char Buf[9];
             _tft->setTextSize(DATE_SIZE);
             _tft->setTextColor(c);
             _tft->setCursor(30, DATE_Y);
-            _tft->print(hideMo ? "--- " : (char*)pgm_read_ptr(&monthNames[t.month()-1]));
+            _tft->print(hideMo ? "--- " : strcpy_P(Buf, monthNames[t.month()-1]));
             if (!hideDay) sprintf(Buf, "%02d, ", t.day());
             _tft->print(hideDay ? "--, " : Buf);
             if (!hideYr) sprintf(Buf, "%04d", t.year());
             _tft->print(hideYr ? "----" : Buf);
-            _CenteredText(pgm_read_ptr(&daysFull[now.dayOfTheWeek()]), DATE_Y + 10, DATE_SIZE, c);
+            _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), DATE_Y + 10, DATE_SIZE, c);
         }
         void Bottom(const char* t) {
             _clearLine(BOTTOM_Y, 12);
@@ -111,7 +111,7 @@ class DrawUI {
         void FakeLoading() {
             _CenteredText("system loading", 125, 1, YELLOW); 
             const uint8_t barSteps[] = {0, 25, 50, 55, 60, 65, 85, 100};
-            const uint16_t delays[]   = {250, 250, 250, 150, 150, 150, 250, 500};
+            const uint16_t delays[] = {250, 250, 250, 150, 150, 150, 250, 500};
             for (uint16_t i = 0; i < 8; i++) {
                 _ProgressBar(barSteps[i]);
                 delay(delays[i]);
@@ -143,7 +143,7 @@ class DrawUI {
         }
         void TextColorChange(bool saveColor = false) {
             clock_color_index = (clock_color_index + 1) % 8;
-            date_color_index = (clock_color_index + 1 + random(7)) % 8;
+            date_color_index = (clock_color_index + 1 + rand(7)) % 8;
             if(date_color_index == clock_color_index) date_color_index = (date_color_index + 1) % 8;
             CheckeredBorders(pgm_read_word(&colors[clock_color_index]), pgm_read_word(&colors[date_color_index]));
             Time();

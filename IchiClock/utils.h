@@ -1,6 +1,7 @@
 #pragma once
 
 uint16_t h, m, mo, d, y;
+const char bottomTextBuffer[20]; // for fucken bottom function on seperate 2 methods
 
 void initialize() {             // goofy ahh init
     tft.initR(INITR_GREENTAB);
@@ -9,7 +10,7 @@ void initialize() {             // goofy ahh init
     Draw.init(tft);
     loadColors();
     Draw.SystemBoot();
-    Jingle(CHIISANA_BOKENSHA_JINGLE);
+    Jingle(CHIISANA_BOKENSHA_JINGLE, true);
     delay(100);
     Draw.FakeLoading();
     Wire.begin();

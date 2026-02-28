@@ -1,5 +1,4 @@
 #include <EEPROM.h>
-#include <Wire.h>
 #include <RTClib.h>
 #include <Adafruit_ST7735.h>
 
@@ -25,13 +24,16 @@ RTC_DS3231 rtc;
 #include "utils.h"
 #include "alarm.h"
 
+bool dones = false;
+
 void setup() {
     initialize();
     Draw.Header(0);
-    Draw.Bottom(pgm_read_word_near(&bottomMessages[random(totalMessages)]));
+    Draw.Bottom(strcpy_P(bottomTextBuffer, bottomMessages[rand(46)]));
 }
 
 void loop() {
+    updateJingle();
     now = rtc.now();
     
     adjustHeld = digitalRead(BTN_ADJUST) == LOW;
@@ -44,7 +46,7 @@ void loop() {
         lastCheck = millis();
         handleBothButtons();
     };
-
+    
     CheckAlarm(now.hour(), now.minute(), now.second());
 }
 
@@ -67,20 +69,21 @@ void timeUpdate() {
     }
 }
 void bottomTextUpdate() {
+    if(jingleState.playing) return;
     if (millis() - lastBottomUpdate >= 10000) {
         lastBottomUpdate = millis();
         uint8_t newIndex;
         do {
-            newIndex = random(totalMessages);
-        } while (newIndex == lastBottomIndex && totalMessages > 1);
+            newIndex = rand(46);
+        } while (newIndex == lastBottomIndex && 46 > 1);
         lastBottomIndex = newIndex;
         bottomIndex = newIndex;
-        Draw.Bottom(pgm_read_word_near(&bottomMessages[newIndex]));
+        Draw.Bottom(strcpy_P(bottomTextBuffer, bottomMessages[rand(46)]));
     }
 }
 void borderUpdate() {
     if(millis() - borderLastUpdate >= 500) {
         borderLastUpdate = millis();
-        Draw.CheckeredBorders(); 
+        Draw.CheckeredBorders();
     }
 }
