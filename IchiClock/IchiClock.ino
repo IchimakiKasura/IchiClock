@@ -35,7 +35,17 @@ void setup() {
 
 void loop() {
     updateJingle();
-    now = rtc.now();
+
+    isRTC = M_RTC::rtcConnected();
+
+    // barely does shit, unless the rtc isn't connected in the first place
+    if (isRTC) {
+        now = rtc.now();
+    } else {
+        Draw.Time(DateTime(0,0,0,0,0,0));
+        Draw.Date(DateTime(0,0,0,0,0,0));
+        return;
+    }
     
     adjustHeld = digitalRead(BTN_ADJUST) == LOW;
 
@@ -92,17 +102,25 @@ void initialize() {             // goofy ahh init
     tft.initR(INITR_GREENTAB);
     tft.setRotation(0);
     tft.fillScreen(0x18A8);
+
     Draw.init(tft);
-    M_COLORS::  Load();
+
+    M_COLORS::Load();
+
     Draw.SystemBoot();
+
     Jingle(CHIISANA_BOKENSHA_JINGLE, true);
     delay(100);
+    
     Draw.FakeLoading();
+    
     Wire.begin();
     rtc.begin();
+
     pinMode(BTN_SELECT, INPUT_PULLUP);
     pinMode(BTN_ADJUST, INPUT_PULLUP);
     pinMode(BUZZER, OUTPUT);
+
     tft.fillScreen(0x18A8);
 
     if(SETUP_TIME) rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));

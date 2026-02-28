@@ -6,7 +6,9 @@ class DrawUI {
     private:
         Adafruit_ST7735* _tft;
         int16_t _clockX;
-        bool _clockBoundsCached = false;
+        bool _clockBoundsCached = false,
+             _timeDrawnErr = false,
+             _dateDrawnErr = false;
 
         void _cacheClockBounds() {
             if (_clockBoundsCached) return;
@@ -47,15 +49,12 @@ class DrawUI {
         }
 
         void _Logo(int x, int y, uint8_t scale) {
-            for (uint16_t i = 0; i < sizeof(rects)/sizeof(rects[0]); i++) {
-                Rect r; memcpy_P(&r, &rects[i], sizeof(Rect));
-                tft.fillRect(
-                    x + round((r.x-17)*scale),
-                    y + round((r.y-15)*scale),
-                    max(1, round(r.w*scale)),
-                    max(1, round(r.h*scale)),
-                    pgm_read_word(&megumin_colors[r.c])
-                );
+            for (uint16_t i = 0; i < sizeof(rects)/sizeof(Rect); i++) {
+                Rect r;
+                memcpy_P(&r, &rects[i], sizeof r);
+                uint16_t color = pgm_read_word(&megumin_colors[r.colorId]);
+                tft.fillRect(x+((r.x-14)+r.xOffs)*scale,y+(r.y-13)*scale,r.w*scale,r.h*scale,color);
+                tft.fillRect(x+(r.x-14)*scale,y+((r.y-13)+r.yOffs)*scale,r.w*scale,r.h*scale,color);
             }
         }
     public:
@@ -88,7 +87,7 @@ class DrawUI {
 
             char Buf[3];
             uint8_t h12 = t.hour() % 12;
-            const char* ampm = _hideField(FIELD_AMPM) ? "--" : (t.hour() >= 12 ? "PM" : "AM");
+            const char* ampm = isRTC ? _hideField(FIELD_AMPM) ? "--" : (t.hour() >= 12 ? "PM" : "AM") : "??";
 
             if (!h12) h12 = 12;
             
@@ -96,19 +95,28 @@ class DrawUI {
             _cacheClockBounds();
             _tft->setCursor(_clockX, CLOCK_Y);
 
-            if (!_hideField(FIELD_HOUR)) sprintf(Buf, "%02d", h12);
-            _tft->setTextColor(_hideField(FIELD_HOUR) ? RED : M_COLORS::ClockColor());
-            _tft->print(_hideField(FIELD_HOUR) ? "--" : Buf);
-
-            _tft->setTextColor(WHITE);
-            _tft->print(":");
-
-            if (!_hideField(FIELD_MIN))  sprintf(Buf, "%02d", t.minute());
-            _tft->setTextColor(_hideField(FIELD_MIN) ? RED : M_COLORS::ClockColor());
-            _tft->print(_hideField(FIELD_MIN) ? "--" : Buf);
+            if(isRTC)
+            {
+                _timeDrawnErr = true;
+                if (!_hideField(FIELD_HOUR)) sprintf(Buf, "%02d", h12);
+                _tft->setTextColor(_hideField(FIELD_HOUR) ? RED : M_COLORS::ClockColor());
+                _tft->print(_hideField(FIELD_HOUR) ? "--" : Buf);
+    
+                _tft->setTextColor(WHITE);
+                _tft->print(":");
+                
+                if (!_hideField(FIELD_MIN))  sprintf(Buf, "%02d", t.minute());
+                _tft->setTextColor(_hideField(FIELD_MIN) ? RED : M_COLORS::ClockColor());
+                _tft->print(_hideField(FIELD_MIN) ? "--" : Buf);
+            } else {
+                if(_timeDrawnErr) _tft->print("??:??");
+                _timeDrawnErr = false;
+            }
 
             _clearLine(AMPM_Y, 20);
             _CenteredText(ampm, AMPM_Y, AMPM_SIZE, _hideField(FIELD_AMPM) ? RED : M_COLORS::ClockColor());
+
+            // _Logo(64,80,3);
         }
 
         void Date(const DateTime &t = now) {
@@ -124,15 +132,22 @@ class DrawUI {
             _tft->setTextColor(c);
             _tft->setCursor(30, DATE_Y);
 
-            _tft->print(hideMo ? "--- " : strcpy_P(Buf, monthNames[t.month()-1]));
-
-            if (!hideDay) sprintf(Buf, "%02d, ", t.day());
-            _tft->print(hideDay ? "--, " : Buf);
-
-            if (!hideYr) sprintf(Buf, "%04d", t.year());
-            _tft->print(hideYr ? "----" : Buf);
-
-            _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), DATE_Y + 10, DATE_SIZE, c);
+            if(isRTC)
+            {
+                _dateDrawnErr = false;
+                _tft->print(hideMo ? "--- " : strcpy_P(Buf, monthNames[t.month()-1]));
+    
+                if (!hideDay) sprintf(Buf, "%02d, ", t.day());
+                _tft->print(hideDay ? "--, " : Buf);
+    
+                if (!hideYr) sprintf(Buf, "%04d", t.year());
+                _tft->print(hideYr ? "----" : Buf);
+    
+                _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), DATE_Y + 10, DATE_SIZE, c);
+            } else {
+                if(_dateDrawnErr) _tft->print("RtcError");
+                _dateDrawnErr = true;
+            }
         }
 
         void Bottom(const char* t) {
@@ -141,8 +156,8 @@ class DrawUI {
         }
 
         void SystemBoot() {
-            _CenteredText("MEGU-CLOCK", 100, 2, WHITE);
-            _Logo(69,55,3.0);
+            _CenteredText("MEGU-CLOCK", 90, 2, WHITE);
+            _Logo(64,55,3);
         }
 
         void FakeLoading() {

@@ -6,7 +6,6 @@
 #define TFT_DC   9
 
 Adafruit_ST7735 tft(TFT_CS, TFT_DC, TFT_RST);
-
 // Color definitions BGR
 #define M_HAT 0x41EB
 #define M_HAT_SHADOW 0x2907
@@ -21,12 +20,10 @@ Adafruit_ST7735 tft(TFT_CS, TFT_DC, TFT_RST);
 #define OUTLINE ST77XX_BLACK
 #define BG ST7735_WHITE
 
-
 void setup() {
   tft.initR(INITR_GREENTAB);
   tft.setRotation(0);
   tft.fillScreen(BG);
-
   // x, y, w, h, c
 
   // outlines
@@ -53,9 +50,7 @@ void setup() {
   tft.fillRect(22, 26,  1,  2, OUTLINE);
   tft.fillRect(26,  8,  1,  1, OUTLINE);
   tft.fillRect(27,  8,  2,  2, OUTLINE);
-
   // HAT COLOR
-  tft.fillRect( 5, 12, 4, 1, M_HAT);
   tft.fillRect( 5, 13, 1, 1, M_HAT);
   tft.fillRect( 7, 12, 4, 1, M_HAT);
   tft.fillRect( 8,  7, 3, 1, M_HAT);
@@ -76,7 +71,6 @@ void setup() {
   tft.fillRect(22,  4, 1, 2, M_HAT_SHADOW);
   tft.fillRect(23,  5, 1, 2, M_HAT_SHADOW);
   tft.fillRect(24,  6, 1, 1, M_HAT_SHADOW);
-
   // HAT RED
   tft.fillRect( 7,  9, 4, 2, M_RED);
   tft.fillRect(10,  5, 3, 1, M_RED);
@@ -88,7 +82,6 @@ void setup() {
   tft.fillRect(18,  6, 1, 1, M_RED);
   tft.fillRect(19,  9, 4, 2, M_RED);
   tft.fillRect(23, 10, 1, 2, M_RED);
-
   // HAT YELLOW
   tft.fillRect( 2, 15, 1, 1, M_YELLOW);
   tft.fillRect( 3, 14, 3, 1, M_YELLOW);
@@ -108,7 +101,6 @@ void setup() {
   tft.fillRect(24, 14, 3, 1, M_YELLOW);
   tft.fillRect(27,  8, 1, 1, M_YELLOW);
   tft.fillRect(27, 15, 1, 1, M_YELLOW);
-
   // SKIN
   tft.fillRect( 8, 17, 1, 4, M_SKIN);
   tft.fillRect( 9, 16, 4, 6, M_SKIN);
@@ -121,7 +113,6 @@ void setup() {
   tft.fillRect(18, 15, 2, 1, M_SKIN_SHADOW);
   tft.fillRect(18, 16, 3, 6, M_SKIN);
   tft.fillRect(21, 17, 1, 4, M_SKIN);
-
   // EYE
   tft.fillRect(10, 17, 2, 1, OUTLINE);
   tft.fillRect(10, 18, 2, 1, M_HIGH_EYE);
@@ -129,7 +120,6 @@ void setup() {
   tft.fillRect(18, 17, 2, 1, OUTLINE);
   tft.fillRect(18, 18, 2, 1, M_HIGH_EYE);
   tft.fillRect(18, 19, 2, 1, M_LOW_EYE);
-
   // HAIR
   tft.fillRect( 5, 17, 2, 3, M_HAIR);
   tft.fillRect( 6, 16, 2, 1, M_HAIR);
