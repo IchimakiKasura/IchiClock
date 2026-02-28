@@ -26,11 +26,12 @@
 #define SAMSUNG 4
   
 /* ============ VARIABLES ============ */
-const char monthNames[][5] PROGMEM = {
+const char monthNames[12][5] PROGMEM = {
   "JAN ","FEB ","MAR ","APR ","MAY ","JUN ",
   "JUL ","AUG ","SEP ","OCT ","NOV ","DEC "
 };
-const char daysFull[][9] PROGMEM = {
+
+const char daysFull[7][9] PROGMEM = {
   "Sunday",
   "Monday",
   "Tuesday",
@@ -39,6 +40,7 @@ const char daysFull[][9] PROGMEM = {
   "Friday",
   "Saturday"
 };
+
 const char bottomMessages[][20] PROGMEM = {
   "Compiling reality",
   "Explosion magic!",  
@@ -105,3 +107,5 @@ unsigned long lastBottomUpdate = 0,
               borderLastUpdate = 0,
               lastUpdate = 0,
               lastCheck = 0;
+
+const char bottomTextBuffer[20]; // for fucken bottom function on seperate 2 methods

@@ -1,10 +1,11 @@
 #pragma once
 struct Rect { uint8_t x, y, w, h; uint8_t c; };
 const uint16_t megumin_colors[] PROGMEM = {
-  ST77XX_BLACK, 0x41EB, 0x2907, 0x4A18, 0x65BE, 0xBEFF, 0x959B, 0x28CA, 0x4A76, 0x632F, 0x3188
+  0x0000, 0x41EB, 0x2907, 0x4A18, 0x65BE, 0xBEFF, 0x959B, 0x28CA, 0x4A76, 0x632F, 0x3188
 };
 // painstakenly fucking pixel by pixel coded
 // if there's a pixel art to fucking tft generator it should've been easy
+// look at the megumin folder if u want to see the raw
 const Rect rects[] PROGMEM = {  
   {0,16,30,1,0},{1,15,28,1,0},{2,14,26,1,0},{3,13,24,4,0},{4,13,22,7,0},{5,10,20,14,0},
   {6,8,18,2,0},{6,24,3,2,0},{7,7,21,1,0},{7,26,1,2,0},{8,6,18,1,0},{9,5,16,1,0},

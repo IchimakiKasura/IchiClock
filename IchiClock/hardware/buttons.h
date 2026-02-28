@@ -1,7 +1,5 @@
 #pragma once
-
-#include "utils.h"
-extern uint16_t h, m, mo, d, y;
+#include "rtc.h"
 
 unsigned long selectPressStart = 0,
               adjustPressTime  = 0,
@@ -25,7 +23,7 @@ void handleSelectButton() {
     if (!state && !longHandled && (nowMs - selectPressStart >= 500)) {
         longHandled =
         selectIgnoreRelease = true;
-        if (editMode) saveToRTC();
+        if (editMode) M_RTC::Save();
     }
 
     if (!lastState && state) {
@@ -35,14 +33,14 @@ void handleSelectButton() {
         else if (!longHandled) {
             if (editMode) {
                 Draw.blinkState = !(Draw.lastBlink = 0);
-                if (selected == FIELD_YEAR) saveToRTC();
+                if (selected == FIELD_YEAR) M_RTC::Save();
                 else {
                     selected = (Field)((selected + 1) % 6);
                     quickBeepStart();
                 }
             } 
             else {
-                loadFromRTC();
+                M_RTC::Load();
                 Draw.Header(1);
                 Draw.blinkState = editMode = true;
                 quickBeepStart();
@@ -51,42 +49,50 @@ void handleSelectButton() {
     }
     lastState = state;
 }
+
 void applyAdjustment(int dir) {
     int dim;
     switch (selected) {
-        case FIELD_HOUR:  h = (h + dir + 24) % 24; h_edited = true; break;
-        case FIELD_MIN:   m = (m + dir + 60) % 60; m_edited = true; break;
-        case FIELD_AMPM:  h = (h + 12) % 24; break;
+        case FIELD_HOUR:  M_RTC::h = (M_RTC::h + dir + 24) % 24; h_edited = true; break;
+        case FIELD_MIN:   M_RTC::m = (M_RTC::m + dir + 60) % 60; m_edited = true; break;
+        case FIELD_AMPM:  M_RTC::h = (M_RTC::h + 12) % 24; break;
         case FIELD_MONTH:
-            mo = (mo + dir - 1 + 12) % 12 + 1;
-            dim = daysInMonth(mo, y);
-            if (d > dim) d = dim;
+            M_RTC::mo = (M_RTC::mo + dir - 1 + 12) % 12 + 1;
+            dim = M_RTC::getDay();
+            if (M_RTC::d > dim)
+                M_RTC::d = dim;
             break;
         case FIELD_DAY:
-            dim = daysInMonth(mo, y);
-            d += dir;
-            if (d < 1) d = dim;
-            else if (d > dim) d = 1;
+            dim = M_RTC::getDay();
+            M_RTC::d += dir;
+            if (M_RTC::d < 1)
+                M_RTC::d = dim;
+            else if (M_RTC::d > dim)
+                M_RTC::d = 1;
             break;
         case FIELD_YEAR:
-            y += dir;
-            dim = daysInMonth(mo, y);
-            if (d > dim) d = dim;
+            M_RTC::y += dir;
+            dim = M_RTC::getDay();
+            if (M_RTC::d > dim)
+                M_RTC::d = dim;
             break;
     }
     quickBeepStart();
 }
+
 void handleAdjustButton() {
     static bool lastState = HIGH;
     static unsigned long lastRepeat = 0;
     bool state = digitalRead(BTN_ADJUST);
     unsigned long nowMs = millis();
+
     if (!editMode) {
         if (lastState && !state) {
             Draw.TextColorChange(true);
             quickBeepStart();
             adjustHoldStart = nowMs;
         }
+
         if (!state && (nowMs - adjustHoldStart > 500)) {
             if (nowMs - lastRepeat >= 120) {
                 Draw.TextColorChange(true);
@@ -97,6 +103,7 @@ void handleAdjustButton() {
         lastState = state;
         return;
     }
+
     if (lastState && !state) {
         if (nowMs - adjustPressTime < 300) {
             adjustWaitingSecondTap = false;
@@ -105,19 +112,23 @@ void handleAdjustButton() {
             adjustWaitingSecondTap = true;
             adjustPressTime = nowMs;
         }
+        
         adjustHoldStart = nowMs;
         lastRepeat = nowMs;
     }
+
     if (!state && (nowMs - adjustHoldStart > 500)) {
         if (nowMs - lastRepeat >= 120) {
             applyAdjustment(1);
             lastRepeat = nowMs;
         }
     }
+
     if (adjustWaitingSecondTap && state && (nowMs - adjustPressTime >= 300)) {
         adjustWaitingSecondTap = false;
         applyAdjustment(1);
     }
+
     lastState = state;
 }
 void handleBothButtons() {
