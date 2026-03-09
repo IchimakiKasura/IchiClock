@@ -1,17 +1,6 @@
 #pragma once
 #include <EEPROM.h>
 
-// shortcut
-#define RED     ST77XX_RED
-#define BLUE    ST77XX_BLUE
-#define CYAN    ST77XX_CYAN
-#define YELLOW  ST77XX_YELLOW
-#define WHITE   ST77XX_WHITE
-#define BLACK   ST77XX_BLACK
-#define ORANGE  ST77XX_ORANGE
-#define MAGENTA ST77XX_MAGENTA
-#define GREEN   ST77XX_GREEN
-
 class M_COLORS {
 public:
     inline static byte ClockColor_index = 1;

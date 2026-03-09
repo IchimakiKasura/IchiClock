@@ -1,5 +1,5 @@
 #pragma once
-#include <Min_Adafruit_ST7735.h>
+#include <custom_ST7735.h>
 #include "rtc.h"
 #include "../assets/meguminLogo.h"
 #include "../config/ColorConfig.h"

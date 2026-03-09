@@ -1,4 +1,4 @@
-<center>
+<div align="center">
 
 # MEGU-CLOCK
 *Its my goofy built digital clock with funi features.*
@@ -6,7 +6,7 @@
 <img src="gui.jpg" height="450"/>
 
 ## Features:
-</center>
+</div>
 
 - Fake loading because god knows its just a simple mcu.
 - Customizable uh colors
@@ -21,13 +21,10 @@
 - has random ahh messages every 10 seconds at the bottom. *(can be customized through code ofc)*
 - has an epic border.
 
-<br>
-<hr>
-<br>
-<center>
+<div align="center">
 
 ## requirements?
-</center>
+</div>
 
 - Arduino Uno/Nano (planning to upgrade to esp32 for faster shit? no more memory for goofy pictures)
 - 2 Push Buttons
