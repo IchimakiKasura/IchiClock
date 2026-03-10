@@ -19,7 +19,7 @@ public:
     inline char* getMidday();
     void Load();
     void Save();
-};
+} mRTC;
 
 void M_RTC::init() {
     Wire.begin();
@@ -79,5 +79,3 @@ void M_RTC::Save() {
     editMode = false;
     selected = FIELD_HOUR;
 }
-
-M_RTC mRTC;

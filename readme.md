@@ -30,7 +30,7 @@
 - 2 Push Buttons
 - Passive Buzzer
 - mini DS3231 (the one says "FOR PI" even tho I used it on arduino 😈)
-- ST7735 1.8" 128x160 (tho planning to upgrade to larger one)
+- ST7735 1.8" 128x160 (tho planning to upgrade to larger one) *(Due to modified gfx, Specifically GREEN TAB)*
 
 wirings:
 - nah you read the sht and fcken guess it by urself.

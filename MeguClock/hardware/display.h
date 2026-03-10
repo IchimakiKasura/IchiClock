@@ -1,12 +1,12 @@
 #pragma once
-#include <custom_ST7735.h>
+#include <MeguClock_ST7735.h>
 #include "rtc.h"
 #include "../assets/meguminLogo.h"
 #include "../config/ColorConfig.h"
 
 class DrawUI {
 private:
-    Adafruit_ST7735* _tft;
+    MeguClock_ST7735* _tft;
     int16_t _clockX;
     uint16_t _screenWidth, _screenHeight;
     bool _clockBoundsCached = false,
@@ -96,7 +96,7 @@ void DrawUI::_Logo(int x, int y, uint8_t scale) {
 }
 
 void DrawUI::init(uint8_t cs, uint8_t dc, uint8_t rst) {
-    _tft = new Adafruit_ST7735(cs, dc, rst);
+    _tft = new MeguClock_ST7735(cs, dc, rst);
     _tft->initR();
     _tft->fillScreen(0x40A3);
     _screenWidth = _tft->width();
