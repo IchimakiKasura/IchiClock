@@ -10,17 +10,21 @@ unsigned long lastSelect = 0,
               lastAdjust = 0;
 
 void handleSelectButton() {
-    bool state = digitalRead(BTN_SELECT);
+    #ifndef CUSTOM_PINS
+        bool state = (PIND & (1 << 2)) != 0;
+    #else
+        bool state = digitalRead(BTN_SELECT);
+    #endif
+
     static bool lastState = HIGH,
                 longHandled = false;
-    unsigned long nowMs = millis();
 
     if (lastState && !state) {
-        selectPressStart = nowMs;
+        selectPressStart = systemTime;
         longHandled = false;
     }
 
-    if (!state && !longHandled && (nowMs - selectPressStart >= 500)) {
+    if (!state && !longHandled && (systemTime - selectPressStart >= 500)) {
         longHandled =
         selectIgnoreRelease = true;
         if (editMode) {
@@ -90,21 +94,25 @@ void applyAdjustment(int dir) {
 void handleAdjustButton() {
     static bool lastState = HIGH;
     static unsigned long lastRepeat = 0;
-    bool state = digitalRead(BTN_ADJUST);
-    unsigned long nowMs = millis();
+    
+    #ifndef CUSTOM_PINS
+        bool state = (PIND & (1 << 3));
+    #else
+        bool state = digitalRead(BTN_ADJUST);
+    #endif
 
     if (!editMode) {
         if (lastState && !state) {
             Draw.TextColorChange(true);
             quickBeepStart();
-            adjustHoldStart = nowMs;
+            adjustHoldStart = systemTime;
         }
 
-        if (!state && (nowMs - adjustHoldStart > 500)) {
-            if (nowMs - lastRepeat >= 120) {
+        if (!state && (systemTime - adjustHoldStart > 500)) {
+            if (systemTime - lastRepeat >= 120) {
                 Draw.TextColorChange(true);
                 quickBeepStart();
-                lastRepeat = nowMs;
+                lastRepeat = systemTime;
             }
         }
         lastState = state;
@@ -112,26 +120,26 @@ void handleAdjustButton() {
     }
 
     if (lastState && !state) {
-        if (nowMs - adjustPressTime < 300) {
+        if (systemTime - adjustPressTime < 300) {
             adjustWaitingSecondTap = false;
             applyAdjustment(-1);
         } else {
             adjustWaitingSecondTap = true;
-            adjustPressTime = nowMs;
+            adjustPressTime = systemTime;
         }
         
-        adjustHoldStart = nowMs;
-        lastRepeat = nowMs;
+        adjustHoldStart = systemTime;
+        lastRepeat = systemTime;
     }
 
-    if (!state && (nowMs - adjustHoldStart > 500)) {
-        if (nowMs - lastRepeat >= 120) {
+    if (!state && (systemTime - adjustHoldStart > 500)) {
+        if (systemTime - lastRepeat >= 120) {
             applyAdjustment(1);
-            lastRepeat = nowMs;
+            lastRepeat = systemTime;
         }
     }
 
-    if (adjustWaitingSecondTap && state && (nowMs - adjustPressTime >= 300)) {
+    if (adjustWaitingSecondTap && state && (systemTime - adjustPressTime >= 300)) {
         adjustWaitingSecondTap = false;
         applyAdjustment(1);
     }
@@ -140,13 +148,17 @@ void handleAdjustButton() {
 }
 void handleBothButtons() {
     if(jingleState.playing) return;
+    
+    #ifndef CUSTOM_PINS
+        bool sel = !(PIND & (1 << 2));
+        bool adj = !(PIND & (1 << 3));
+    #else
+        bool sel = digitalRead(BTN_SELECT) == LOW;
+        bool adj = digitalRead(BTN_ADJUST) == LOW;
+    #endif
 
-    unsigned long now = millis();
-    bool sel = digitalRead(BTN_SELECT) == LOW;
-    bool adj = digitalRead(BTN_ADJUST) == LOW;
-
-    if (sel) lastSelect = now;
-    if (adj) lastAdjust = now;
+    if (sel) lastSelect = systemTime;
+    if (adj) lastAdjust = systemTime;
 
     if (sel && adj && abs((long)(lastSelect - lastAdjust)) < 200 && !editMode) {
         Draw.Bottom("KONOSUBA!!");

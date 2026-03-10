@@ -1,23 +1,20 @@
 #pragma once
 
-#define TFT_CS   10
-#define TFT_RST  8
-#define TFT_DC   9
+// #define CUSTOM_PINS
+// for TFT pinouts, it accepts registers only specifically B type (pins 8-13)
+// because 10,9 are the mosi and clk usually (SPI pins) for arduino uno/nano
+// #define TFT_CS   2 //10
+// #define TFT_RST  0 //8
+// #define TFT_DC   1 //9
+// #define BTN_SELECT 2
+// #define BTN_ADJUST 3
+// #define BUZZER     5
 
-#define BTN_SELECT 2
-#define BTN_ADJUST 3
-#define BUZZER     5
+// I only did the pins to save small bytes, rest are uhh hard
 
 /* ============ TEXT SETTINGS ============ */
 #define HEADER_TEXT "MEGUMIN CLOCK"
 // Boot title is hardcoded no.
-
-#define TITLE_Y   55
-#define HEADER_Y  18
-#define CLOCK_Y   50
-#define AMPM_Y    80
-#define DATE_Y    105
-#define BOTTOM_Y  140
 
 #define TITLE_SIZE   2
 #define HEADER_SIZE  1
@@ -26,7 +23,7 @@
 #define DATE_SIZE    1
 #define BOTTOM_SIZE  1
 
-/* ============ none ============ */
+/* ============ idk better readability ============ */
 #define CHIISANA_BOKENSHA_JINGLE 0
 #define FNAF_JINGLE 1
 #define WESTMINISTER_CHIME_JINGLE 2

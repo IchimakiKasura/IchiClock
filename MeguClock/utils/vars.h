@@ -15,7 +15,8 @@ DateTime now, lastTime;
 uint8_t bottomIndex = 0;
 static uint8_t lastBottomIndex = -1;
 
-unsigned long lastBottomUpdate = 0,
+unsigned long systemTime,
+              lastBottomUpdate = 0,
               borderLastUpdate = 0,
               lastUpdate = 0,
               lastCheck = 0;

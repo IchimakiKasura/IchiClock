@@ -32,8 +32,8 @@ private:
     void startWrite();
     void endWrite();
     void setAddrWindow(uint16_t, uint16_t, uint16_t, uint16_t);
-    void SPI_DC_HIGH() { digitalWrite(_dc, HIGH); }
-    void SPI_DC_LOW() { digitalWrite(_dc, LOW); }
+    void SPI_DC_HIGH() { PORTB |= (1 << _dc); }
+    void SPI_DC_LOW() { PORTB &= ~(1 << _dc); }
     void writeAVRSPI(uint8_t);
 public:
     MeguClock_ST7735(int8_t, int8_t, int8_t);

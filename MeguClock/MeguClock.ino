@@ -1,42 +1,48 @@
+#include <Arduino.h>
 #include "utils/vars.h"
 
-void setup() {
-  initialize();
-  Draw.Header(0);
-  Draw.Bottom(strcpy_P(bottomTextBuffer, bottomMessages[rand(45)]));
-}
+int main() {
+    initialize();
 
-void loop() {
-  updateJingle();
+    Draw.Header(0);
+    Draw.Bottom(strcpy_P(bottomTextBuffer, bottomMessages[rand(45)]));
 
-  mRTC.isRTC = mRTC.rtcConnected();
+    while(true) {
+        systemTime = millis();
+        
+        updateJingle();
 
-  if (mRTC.isRTC && !lastRTCState) {
-      Draw.ReDraw();
-  }
-  else if (!mRTC.isRTC && lastRTCState) {
-      DateTime zero(0,0,0,0,0,0);
-      Draw.ReDraw(zero);
-  }
+        updateFunction([](){Draw.CheckeredBorders();}, borderLastUpdate, 500);
+        updateFunction(bottomTextUpdate, lastBottomUpdate, 10000);
 
-  if (mRTC.isRTC) {
-      now = mRTC.rtc.now();
-      adjustHeld = digitalRead(BTN_ADJUST) == LOW;
+        mRTC.isRTC = mRTC.rtcConnected();
 
-      timeUpdate();
+        if (mRTC.isRTC) {
+            now = mRTC.rtc.now();
+            
+            #ifndef CUSTOM_PINS
+                adjustHeld = !(PIND & (1 << 3));
+            #else
+                adjustHeld = digitalRead(BTN_ADJUST);
+            #endif
 
-      if (millis() - lastCheck >= 20) {
-          lastCheck = millis();
-          handleBothButtons();
-      }
+            timeUpdate();
 
-      CheckAlarm(now.hour(), now.minute(), now.second());
-  }
+            updateFunction(handleBothButtons, lastCheck, 20);
 
-  lastRTCState = mRTC.isRTC;
+            CheckAlarm(now.hour(), now.minute(), now.second());
+        }
 
-  bottomTextUpdate();
-  borderUpdate();
+        if (mRTC.isRTC && !lastRTCState) {
+            Draw.ReDraw();
+        }
+        else if (!mRTC.isRTC && lastRTCState) {
+            DateTime zero(0,0,0,0,0,0);
+            Draw.ReDraw(zero);
+        }
+
+        lastRTCState = mRTC.isRTC;
+    }
 }
 
 void timeUpdate() {
@@ -52,26 +58,22 @@ void timeUpdate() {
         return;
     }
 
-    if (millis() - Draw.lastBlink < 700) return;
+    updateFunction([](){
+        Draw.blinkState = !Draw.blinkState;
 
-    Draw.lastBlink = millis();
-    Draw.blinkState = !Draw.blinkState;
+        if (selected != FIELD_HOUR && !h_edited && now.hour() != mRTC.h)
+            mRTC.h = now.hour();
 
-    if (selected != FIELD_HOUR && !h_edited && now.hour() != mRTC.h)
-        mRTC.h = now.hour();
+        if (selected != FIELD_MIN && !m_edited && now.minute() != mRTC.m)
+            mRTC.m = now.minute();
 
-    if (selected != FIELD_MIN && !m_edited && now.minute() != mRTC.m)
-        mRTC.m = now.minute();
-
-    DateTime temp(mRTC.y, mRTC.mo, mRTC.d, mRTC.h, mRTC.m, now.second());
-    Draw.ReDraw(temp);
+        DateTime temp(mRTC.y, mRTC.mo, mRTC.d, mRTC.h, mRTC.m, now.second());
+        Draw.ReDraw(temp);
+    }, Draw.lastBlink, 700);
 }
 
 void bottomTextUpdate() {
     if (jingleState.playing) return;
-    if (millis() - lastBottomUpdate < 10000) return;
-
-    lastBottomUpdate = millis();
 
     uint8_t newIndex;
     do {
@@ -84,16 +86,18 @@ void bottomTextUpdate() {
     Draw.Bottom(strcpy_P(bottomTextBuffer, bottomMessages[newIndex]));
 }
 
-void borderUpdate() {
-    if(millis() - borderLastUpdate < 500) return;
-    borderLastUpdate = millis();
-    Draw.CheckeredBorders();
-}
-
 void initialize() {
+    init();
+
+#ifndef CUSTOM_PINS
+    Draw.init(2, 1, 0);
+#else
     Draw.init(TFT_CS, TFT_DC, TFT_RST);
+    digitalWrite(TFT_RST, HIGH);
+#endif
     M_COLORS::Load();
     Draw.SystemBoot();
+
 
     Jingle(CHIISANA_BOKENSHA_JINGLE, true);
     delay(100);
@@ -102,11 +106,24 @@ void initialize() {
 
     mRTC.init();
 
+#ifndef CUSTOM_PINS
+    // some brainfuck shit idfk, it saves like 40bytes?
+    // rest pins are input | D5 output
+    DDRD = 0x20;    // (1<<5) b00100000
+    PORTD = 0x0C;   // (1<<2)|(1<<3) b00001100
+#else
     pinMode(BTN_SELECT, INPUT_PULLUP);
     pinMode(BTN_ADJUST, INPUT_PULLUP);
     pinMode(BUZZER, OUTPUT);
+#endif
 
     Draw.bg();
 
     // mRTC.sync();
+}
+
+inline void updateFunction(void (*func)(), unsigned long &ms, int16_t t) {
+    if (systemTime - ms < t) return;
+    func();
+    ms = systemTime;
 }

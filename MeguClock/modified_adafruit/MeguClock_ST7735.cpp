@@ -93,15 +93,10 @@ MeguClock_ST7735::MeguClock_ST7735(int8_t cs, int8_t dc, int8_t rst) : _rst(rst)
     textcolor = textbgcolor = 0xFFFF;
 }
 void MeguClock_ST7735::initR() {
-    pinMode(_cs, OUTPUT);
-    pinMode(_dc, OUTPUT);
-    digitalWrite(_cs, HIGH);
-    digitalWrite(_dc, HIGH); 
-    hwspi.settings = SPISettings(32000000, MSBFIRST, SPI_MODE0);
+    DDRB = (1 << _rst)|(1 << _dc)|(1 << _cs);
+    PORTB |= (1 << _rst)|(1 << _dc)|(1 << _cs);
+    hwspi.settings = SPISettings(16000000L, MSBFIRST, SPI_MODE0);
     if(hwspi._spi) hwspi._spi->begin();
-    pinMode(_rst, OUTPUT);
-    digitalWrite(_rst, HIGH);
-    delay(100);
     displayInit(Rcmd1);
     displayInit(Rcmd2green);
     displayInit(Rcmd3);
@@ -174,7 +169,10 @@ void MeguClock_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint
   endWrite();
 }
 void MeguClock_ST7735::fillScreen(uint16_t color) {
-  fillRect(0, 0, _width, _height, color);
+  startWrite();
+  setAddrWindow(0, 0, _width, _height);
+  writeColor(color, _width * _height);
+  endWrite();
 }
 void MeguClock_ST7735::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size_x, uint8_t size_y) {
   if ((x >= _width) || (y >= _height) || ((x + 6 * size_x - 1) < 0) || ((y + 8 * size_y - 1) < 0)) return;
@@ -255,10 +253,10 @@ void MeguClock_ST7735::charBounds(unsigned char c, int16_t *x, int16_t *y, int16
 }
 void MeguClock_ST7735::startWrite() {
   hwspi._spi->beginTransaction(hwspi.settings);
-  digitalWrite(_cs, LOW);
+  PORTB &= ~(1 << 2);
 }
 void MeguClock_ST7735::endWrite() {
-  digitalWrite(_cs, LOW);
+  PORTB &= ~(1 << 2);
   hwspi._spi->endTransaction();
 }
 void MeguClock_ST7735::writeAVRSPI(uint8_t addr) {

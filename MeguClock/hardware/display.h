@@ -35,9 +35,7 @@ public:
     void CheckeredBorders(uint16_t fillColor = 0, uint16_t dashColor = 0);
     void TextColorChange(bool saveColor = false);
     void ReDraw(const DateTime &t = now);
-    void bg() {
-        _tft->fillScreen(0x40A3);
-    }
+    void bg() { _tft->fillScreen(0x40A3); }
 } Draw;
 
 void DrawUI::_cacheClockBounds() {
@@ -105,21 +103,21 @@ void DrawUI::init(uint8_t cs, uint8_t dc, uint8_t rst) {
 
 void DrawUI::Header(byte t) {
     static bool _l = false;
-    _clearLine(HEADER_Y-8, 20);
+    _clearLine(10, 20);
 
     if(t == 0) {
-        _CenteredText(F("MEGUMIN"), HEADER_Y-8, HEADER_SIZE, WHITE);
-        _CenteredText(F("CLOCK"), HEADER_Y+5, HEADER_SIZE, WHITE);
+        _CenteredText(F("MEGUMIN"), 10, HEADER_SIZE, WHITE);
+        _CenteredText(F("CLOCK"),   23, HEADER_SIZE, WHITE);
     } else {
-        _CenteredText(F("CONFIGURE"), HEADER_Y-8, HEADER_SIZE, WHITE);
-        _CenteredText(F("TIME/DATE"), HEADER_Y+5, HEADER_SIZE, WHITE);
+        _CenteredText(F("CONFIGURE"), 10, HEADER_SIZE, WHITE);
+        _CenteredText(F("TIME/DATE"), 23, HEADER_SIZE, WHITE);
     }
     
     _Logo(19,22,1); _Logo(109,22,1);
 }
 
 void DrawUI::Time(const DateTime &t = now) {
-    _clearLine(CLOCK_Y, 30);
+    _clearLine(50, 30);
 
     char Buf[3];
     uint8_t h12 = mRTC.getCurrentHour(t);
@@ -129,7 +127,7 @@ void DrawUI::Time(const DateTime &t = now) {
     
     _tft->setTextSize(CLOCK_SIZE);
     _cacheClockBounds();
-    _tft->setCursor(_clockX, CLOCK_Y);
+    _tft->setCursor(_clockX, 50);
 
     if(mRTC.isRTC)
     {
@@ -148,13 +146,13 @@ void DrawUI::Time(const DateTime &t = now) {
         _tft->print(F("??:??"));
     }
 
-    _clearLine(AMPM_Y, 20);
-    _CenteredText(ampm, AMPM_Y, AMPM_SIZE, _hideField(FIELD_AMPM) ? RED : M_COLORS::ClockColor());
+    _clearLine(80, 20);
+    _CenteredText(ampm, 80, AMPM_SIZE, _hideField(FIELD_AMPM) ? RED : M_COLORS::ClockColor());
     // _Logo(64,80,3);
 }
 
 void DrawUI::Date(const DateTime &t = now) {
-    _clearLine(DATE_Y, 22);
+    _clearLine(105, 22);
 
     char Buf[10];
     bool hideMo  = _hideField(FIELD_MONTH);
@@ -164,7 +162,7 @@ void DrawUI::Date(const DateTime &t = now) {
 
     _tft->setTextSize(DATE_SIZE);
     _tft->setTextColor(c);
-    _tft->setCursor(30, DATE_Y);
+    _tft->setCursor(30, 105);
 
     if(mRTC.isRTC)
     {
@@ -176,15 +174,15 @@ void DrawUI::Date(const DateTime &t = now) {
         if (!hideYr) sprintf(Buf, "%04d", t.year());
         _tft->print(hideYr ? "----" : Buf);
 
-        _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), DATE_Y + 10, DATE_SIZE, c);
+        _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), 105 + 10, DATE_SIZE, c);
     } else {
         _tft->print(F("  RtcError"));
     }
 }
 
 void DrawUI::Bottom(const char* t) {
-    _clearLine(BOTTOM_Y, 12);
-    _CenteredText(t, BOTTOM_Y, BOTTOM_SIZE, GREEN);
+    _clearLine(140, 12);
+    _CenteredText(t, 140, BOTTOM_SIZE, GREEN);
 }
 
 void DrawUI::SystemBoot() {

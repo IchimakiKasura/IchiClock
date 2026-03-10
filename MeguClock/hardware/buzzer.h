@@ -1,6 +1,8 @@
 #pragma once
 #include "../config/ColorConfig.h"
 
+extern inline void updateFunction(void (*func)(), unsigned long &ms, int16_t t);
+
 const uint16_t melody[5][43] PROGMEM = {
     // 0 - Konosuba ED
     { 523, 523, 587, 659, 659, 784, 880, 1047, 880, 784, 659, 659,
@@ -37,7 +39,14 @@ const uint16_t noteDurations[5][43] PROGMEM = {
 const uint8_t melodyLengths[5] PROGMEM = { 23, 9, 22, 15, 43 };
 
 void quickBeepStart(int duration = 50) {
-    tone(BUZZER, 1000, duration);
+    tone(
+        #ifdef CUSTOM_PINS
+        BUZZER
+        #else
+        5
+        #endif
+        , 1000, duration
+    );
 }
 
 struct JingleState {
@@ -67,9 +76,22 @@ void Jingle(uint8_t jingleNumber,
             uint16_t dur  = pgm_read_word_near(&noteDurations[jingleNumber][i]);
 
             if (note) {
-                tone(BUZZER, note);
+                tone(
+                    #ifdef CUSTOM_PINS
+                    BUZZER
+                    #else
+                    5
+                    #endif
+                    , note
+                );
                 delay(dur + delays);
-                noTone(BUZZER);
+                noTone(
+                    #ifdef CUSTOM_PINS
+                    BUZZER
+                    #else
+                    5
+                    #endif
+                );
             } else {
                 delay(dur);
             }
@@ -96,17 +118,21 @@ void updateJingle() {
 
     if (!jingleState.playing) return;
 
-    unsigned long now = millis();
     uint8_t len = pgm_read_byte_near(&melodyLengths[jingleState.jingle]);
 
-    if (jingleState.borders && now - lastBorder >= 500) {
-        Draw.TextColorChange();
-        lastBorder = now;
-    }
+    
+    if (jingleState.borders)
+        updateFunction([](){Draw.TextColorChange();}, lastBorder, 500);
 
     if (jingleState.index >= len) {
         jingleState.playing = false;
-        noTone(BUZZER);
+        noTone(
+            #ifdef CUSTOM_PINS
+            BUZZER
+            #else
+            5
+            #endif
+        );
         M_COLORS::Load();
         Draw.ReDraw();
         return;
@@ -116,15 +142,27 @@ void updateJingle() {
     uint16_t dur = pgm_read_word_near(&noteDurations[jingleState.jingle][jingleState.index]);
 
     if (!playing) {
-        if (note) tone(BUZZER, note);
-        end = now + dur + jingleState.delays;
+        if (note) tone(
+            #ifdef CUSTOM_PINS
+            BUZZER
+            #else
+            5
+            #endif
+            , note);
+        end = systemTime + dur + jingleState.delays;
         playing = true;
     }
 
-    if (playing && now >= end) {
-        if (note) noTone(BUZZER);
+    if (playing && systemTime >= end) {
+        if (note) noTone(
+            #ifdef CUSTOM_PINS
+            BUZZER
+            #else
+            5
+            #endif
+        );
         playing = false;
-        jingleState.nextTime = now + 30;
+        jingleState.nextTime = systemTime + 30;
         jingleState.index++;
     }
 }
