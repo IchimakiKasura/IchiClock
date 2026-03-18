@@ -21,12 +21,12 @@
 
 static const uint8_t PROGMEM
   Rcmd1[] = {
-     15,                // Number of commands in this list
+       15,              // Number of commands in this list
      // --- Reset and wake display ---
      0x01, 0x80,        // SWRESET (Software reset)
-     150,               // wait 150ms for controller reset
+       50,              // wait 50ms for controller reset
      0x11, 0x80,        // SLPOUT (Sleep out)
-     255,               // wait 255ms for internal voltages to stabilize
+      255,              // wait 255ms for internal voltages to stabilize
      // --- Frame rate configuration ---
      0xB1, 3,           // FRMCTR1 - Frame rate control (normal mode)
      0x01,              // RTNA: internal oscillator division
@@ -80,11 +80,11 @@ static const uint8_t PROGMEM
   Rcmd2green[] = {              // This is where the part
         2,                      // where you most likely change
      0x2A,     4,               // to RED or other tab
-     0x00,  0x02,               // if you want to use this minified version
-     0x00,  0x7F+0x02,          // 
+     0x00,  0x00,               // if you want to use this minified version
+     0x00,  0x80,               // 
      0x2B,     4,               // seek to Adafruit_ST77xx to see the red tab code
-     0x00,  0x01,                  
-     0x00,  0x9F+0x01
+     0x00,  0x00,                  
+     0x00,  0xA0
 }, 
   Rcmd3[] = { 
         4,
@@ -99,7 +99,7 @@ static const uint8_t PROGMEM
      0x2E,  0x2E,  0x37,  0x3F,
      0x00,  0x00,  0x02,  0x10,
      0x13,  0x80,
-       10,
+        5,
      0x29,  0x80,
       100
 };
@@ -109,29 +109,29 @@ MeguClock_ST7735::MeguClock_ST7735(int8_t cs, int8_t dc, int8_t rst) : _rst(rst)
     _width = TFT_WIDTH;
     _height = TFT_HEIGHT;
     cursor_y = cursor_x = 0;
-    textsize_x = textsize_y = 1;
+    textsize = 1;
     textcolor = textbgcolor = 0xFFFF;
 }
 void MeguClock_ST7735::initR() {
     DDRB = (1 << _rst)|(1 << _dc)|(1 << _cs);
     PORTB |= (1 << _rst)|(1 << _dc)|(1 << _cs);
-    hwspi.settings = SPISettings(16000000L, MSBFIRST, SPI_MODE0);
+    hwspi.settings = SPISettings(16000000, MSBFIRST, SPI_MODE0);
     if(hwspi._spi) hwspi._spi->begin();
+    startWrite();
     displayInit(Rcmd1);
     displayInit(Rcmd2green);
     displayInit(Rcmd3);
 }
 void MeguClock_ST7735::displayInit(const uint8_t *addr) {
-  uint8_t numCommands = pgm_read_byte(addr++);
+  uint8_t numCommands, numArgs;
+  uint16_t ms;
+  numCommands = pgm_read_byte(addr++);
   while (numCommands--) {
-    uint8_t cmd = pgm_read_byte(addr++);
-    uint8_t numArgs = pgm_read_byte(addr++);
-    uint16_t ms = numArgs & 0x80;
+    writeAVRSPI(pgm_read_byte(addr++));
+    numArgs  = pgm_read_byte(addr++);
+    ms       = numArgs & 0x80;
     numArgs &= ~0x80;
-    startWrite();
-    writeAVRSPI(cmd);
     while (numArgs--) AVR_WRITESPI(pgm_read_byte(addr++));
-    endWrite();
     if (ms) {
       ms = pgm_read_byte(addr++);
       delay(ms == 255 ? 500 : ms);
@@ -152,72 +152,57 @@ void MeguClock_ST7735::setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_
 void MeguClock_ST7735::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if(x<0 ||x>=_width || y<0 || y>=_height) return;
   setAddrWindow(x, y, 1, 1);
-  startWrite();
   writeColor(color, 1);
   endWrite();
-}
-void MeguClock_ST7735::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-  if(h <= 0) return;
-  setAddrWindow(x, y, 1, h);
-  while(h--) writeColor(color, 1);
-}
-void MeguClock_ST7735::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
-  if(w <= 0) return;
-  setAddrWindow(x, y, w, 1);
-  while(w--) writeColor(color, 1);
 }
 void MeguClock_ST7735::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
   if(x>=_width || y>=_height || w<=0 || h<=0) return;
   if(x+w-1>=_width)  w=_width -x;
-  if(y+h-1>=_height) h=_height-y;
-  startWrite();
+if(y+h-1>=_height) h=_height-y;
   setAddrWindow(x, y, w, h);
   writeColor(color, (uint32_t)w * h);
   endWrite();
 }
 void MeguClock_ST7735::fillScreen(uint16_t color) {
-  startWrite();
   setAddrWindow(0, 0, _width, _height);
   writeColor(color, _width * _height);
   endWrite();
 }
-void MeguClock_ST7735::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size_x, uint8_t size_y) {
-  if ((x >= _width) || (y >= _height) || ((x + 6 * size_x - 1) < 0) || ((y + 8 * size_y - 1) < 0)) return;
-  if ((c >= 176)) c++; 
-  for (int8_t i = 0; i < 5; i++) { 
+void MeguClock_ST7735::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size_tx) {
+  if ((x >= _width) || (y >= _height) || ((x + 6 * size_tx - 1) < 0) || ((y + 8 * size_tx - 1) < 0)) return;
+  if ((c >= 176)) c++;
+  for (int8_t i = 0; i < 5; i++) {
     uint8_t line = pgm_read_byte(&font[c * 5 + i]);
     for (int8_t j = 0; j < 8; j++, line >>= 1) {
       if (line & 1) {
-        if (size_x == 1 && size_y == 1)
-          drawPixel(x + i, y + j, color);
-        else
-          fillRect(x + i * size_x, y + j * size_y, size_x, size_y, color);
+        if (size_tx == 1) drawPixel(x + i, y + j, color);
+        else fillRect(x + i * size_tx, y + j * size_tx, size_tx, size_tx, color);
       } else if (bg != color) {
-        if (size_x == 1 && size_y == 1)
-          drawPixel(x + i, y + j, bg);
-        else
-          fillRect(x + i * size_x, y + j * size_y, size_x, size_y, bg);
+        if (size_tx == 1) drawPixel(x + i, y + j, bg);
+        else fillRect(x + i * size_tx, y + j * size_tx, size_tx, size_tx, bg);
       }
     }
   }
-  if (bg != color) { 
-    if (size_x == 1 && size_y == 1)
-      drawFastVLine(x + 5, y, 8, bg);
+  if (bg != color) {
+    if (size_tx == 1) {
+      setAddrWindow(x, y, 1, 8);
+      for (int i = 8; i--;) writeColor(bg, 1);
+    }
     else
-      fillRect(x + 5 * size_x, y, size_x, 8 * size_y, bg);
+      fillRect(x + 5 * size_tx, y, size_tx, 8 * size_tx, bg);
   }
 }
 size_t MeguClock_ST7735::write(uint8_t c) {
   if (c == '\n') {              
     cursor_x = 0;               
-    cursor_y += textsize_y * 8; 
+    cursor_y += textsize * 8; 
   } else if (c != '\r') {       
-    if ((cursor_x + textsize_x * 6) > _width) { 
+    if ((cursor_x + textsize * 6) > _width) { 
       cursor_x = 0;                                       
-      cursor_y += textsize_y * 8; 
+      cursor_y += textsize * 8; 
     }
-    drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize_x, textsize_y);
-    cursor_x += textsize_x * 6; 
+    drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize);
+    cursor_x += textsize * 6; 
   }
   return 1;
 }
@@ -240,27 +225,27 @@ void MeguClock_ST7735::getTextBounds(const __FlashStringHelper *str, int16_t x, 
     *x1 = minx; *y1 = miny;
 }
 void MeguClock_ST7735::charBounds(unsigned char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy) {
-  if(c == '\n') { *x = 0; *y += textsize_y * 8; }
+  if(c == '\n') { *x = 0; *y += textsize * 8; }
     else if(c != '\r') {
-      if(*x + textsize_x * 6 > _width) {
+      if(*x + textsize * 6 > _width) {
           *x = 0;
-          *y += textsize_y * 8;
+          *y += textsize * 8;
       }
-      int16_t x2 = *x + textsize_x * 5 - 1;
-      int16_t y2 = *y + textsize_y * 8 - 1;
+      int16_t x2 = *x + textsize * 5 - 1;
+      int16_t y2 = *y + textsize * 8 - 1;
       if(x2 > *maxx) *maxx = x2;
       if(y2 > *maxy) *maxy = y2;
       if(*x < *minx) *minx = *x;
       if(*y < *miny) *miny = *y;
-      *x += textsize_x * 6;
+      *x += textsize * 6;
   }
 }
 void MeguClock_ST7735::startWrite() {
   hwspi._spi->beginTransaction(hwspi.settings);
-  PORTB &= ~(1 << 2);
+  PORTB &= ~(1 << _cs);
 }
 void MeguClock_ST7735::endWrite() {
-  PORTB &= ~(1 << 2);
+  PORTB &= ~(1 << _cs);
   hwspi._spi->endTransaction();
 }
 void MeguClock_ST7735::writeAVRSPI(uint8_t addr) {
@@ -271,7 +256,7 @@ void MeguClock_ST7735::writeAVRSPI(uint8_t addr) {
 inline void MeguClock_ST7735::writeColor(uint16_t color, uint32_t len) {
     uint8_t hi = color >> 8, lo = color & 0xFF;
     while (len--) {
-        AVR_WRITESPI(hi);
-        AVR_WRITESPI(lo);
+      AVR_WRITESPI(hi);
+      AVR_WRITESPI(lo);
     }
 }

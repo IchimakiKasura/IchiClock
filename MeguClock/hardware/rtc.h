@@ -2,6 +2,7 @@
 #include <RTClib.h>
 #include <Wire.h>
 
+// uh Modify the RTClib too? by breaking it apart and only taking the DS3231?
 class M_RTC {
 public:
     RTC_DS3231 rtc;

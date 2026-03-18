@@ -5,18 +5,15 @@
 - Functions that only works:
     - drawPixel
     - writeLine
-    - drawFastVLine
-    - drawFastHLine
     - fillRect
     - fillScreen
     - drawChar
     - getTextBounds
-    - print
+    - print / write
     - setTextSize
     - setCursor
     - setTextColor
-    - width
-    - height
+    - writeColor
 
 # Usage
 - Put the whole foler at the arduino libraries.

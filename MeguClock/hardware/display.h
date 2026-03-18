@@ -8,17 +8,15 @@ class DrawUI {
 private:
     MeguClock_ST7735* _tft;
     int16_t _clockX;
-    uint16_t _screenWidth, _screenHeight;
     bool _clockBoundsCached = false,
          _timeDrawnErr = false,
          _dateDrawnErr = false;
 
     void _cacheClockBounds();
     inline bool _hideField(const Field &f);
-    void _clearLine(const int16_t &y, const int16_t &h);
+    inline void _clearLine(const int16_t &y, const int16_t &h);
     template<typename args>
     void _CenteredText(const args t,const int16_t &y,const int16_t &s,const uint16_t &c);
-    void _ProgressBar(int percent);
     void _Logo(int x, int y, uint8_t scale);
 
 public:
@@ -46,7 +44,7 @@ void DrawUI::_cacheClockBounds() {
 
     _tft->getTextBounds(F("00:00"), 0, 0, &x1, &y1, &_clockW, &_clockH);
 
-    _clockX = (_tft->width() - _clockW) / 2;
+    _clockX = (128 - _clockW) / 2;
     _clockBoundsCached = true;
 }
 
@@ -54,8 +52,8 @@ inline bool DrawUI::_hideField(const Field &f) {
     return editMode && selected==f && !adjustHeld && !blinkState;
 }
 
-void DrawUI::_clearLine(const int16_t &y, const int16_t &h) {
-    _tft->fillRect(3, y, _screenWidth - 6, h, 0x40A3);
+inline void DrawUI::_clearLine(const int16_t &y, const int16_t &h) {
+    _tft->fillRect(3, y, 122, h, 0x40A3);
 }
 
 template<typename args>
@@ -66,18 +64,8 @@ void DrawUI::_CenteredText(const args t,const int16_t &y,const int16_t &s,const 
     _tft->setTextSize(s);
     _tft->setTextColor(c);
     _tft->getTextBounds(t, 0, 0, &x1, &y1, &w, &h);
-    _tft->setCursor((_screenWidth - w) / 2, y);
+    _tft->setCursor((128 - w) / 2, y);
     _tft->print(t);
-}
-
-void DrawUI::_ProgressBar(int percent) {
-    byte x = 40, y = 145;
-
-    _tft->drawFastHLine(x, y, 42, WHITE);
-    _tft->drawFastVLine(x, y+1, 4, WHITE);
-    _tft->drawFastVLine(x+41, y+1, 4, WHITE);
-    _tft->drawFastHLine(x, y+5, 42, WHITE);
-    _tft->fillRect(x+1, y+1, (40*percent)/100, 4, YELLOW);
 }
 
 void DrawUI::_Logo(int x, int y, uint8_t scale) {
@@ -97,8 +85,6 @@ void DrawUI::init(uint8_t cs, uint8_t dc, uint8_t rst) {
     _tft = new MeguClock_ST7735(cs, dc, rst);
     _tft->initR();
     _tft->fillScreen(0x40A3);
-    _screenWidth = _tft->width();
-    _screenHeight = _tft->height();
 }
 
 void DrawUI::Header(byte t) {
@@ -142,10 +128,8 @@ void DrawUI::Time(const DateTime &t = now) {
         _tft->setTextColor(_hideField(FIELD_MIN) ? RED : M_COLORS::ClockColor());
         _tft->print(_hideField(FIELD_MIN) ? "--" : Buf);
 
-    } else {
-        _tft->print(F("??:??"));
-    }
-
+    } else _tft->print(F("??:??"));
+    
     _clearLine(80, 20);
     _CenteredText(ampm, 80, AMPM_SIZE, _hideField(FIELD_AMPM) ? RED : M_COLORS::ClockColor());
     // _Logo(64,80,3);
@@ -175,9 +159,7 @@ void DrawUI::Date(const DateTime &t = now) {
         _tft->print(hideYr ? "----" : Buf);
 
         _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), 105 + 10, DATE_SIZE, c);
-    } else {
-        _tft->print(F("  RtcError"));
-    }
+    } else _tft->print(F("  RtcError"));
 }
 
 void DrawUI::Bottom(const char* t) {
@@ -196,8 +178,11 @@ void DrawUI::FakeLoading() {
 
     _CenteredText(F("system loading"), 125, 1, YELLOW); 
 
+    _tft->fillRect(40, 145, 42, 6, WHITE);
+    _tft->fillRect(41, 146, 40, 4, 0x40A3);
+
     for (byte i = 0; i < 8; i++) {
-        _ProgressBar(barSteps[i]);
+        _tft->fillRect(41, 146, (40*barSteps[i])/100, 4, YELLOW);
         delay(delays[i]);
     }
 }
@@ -218,17 +203,17 @@ void DrawUI::CheckeredBorders(uint16_t fillColor = 0, uint16_t dashColor = 0) {
     swapColors = !swapColors;
     
     for (int i = 0; i < 4; i++) {
-        for (int x = 1; x < _screenWidth - 1; x += 8) {
+        for (int x = 1; x < 128 - 1; x += 8) {
             _tft->fillRect(x, hY[i], 4, 2, dashColor);
             _tft->fillRect(x + 4, hY[i], 4, 2, fillColor);
         }
     }
 
-    for (int y = 1; y < _screenHeight; y += 8) {
+    for (int y = 1; y < 160; y += 8) {
         _tft->fillRect(1, y, 2, 4, dashColor);
         _tft->fillRect(1, y + 4, 2, 4, fillColor);
-        _tft->fillRect(_screenWidth-2, y+2, 2, 4, dashColor);
-        _tft->fillRect(_screenWidth-2, y+6, 2, 4, fillColor);
+        _tft->fillRect(126, y+2, 2, 4, dashColor);
+        _tft->fillRect(126, y+6, 2, 4, fillColor);
     }
 }
 
@@ -236,9 +221,8 @@ void DrawUI::TextColorChange(bool saveColor = false) {
     M_COLORS::ClockColor_index = (M_COLORS::ClockColor_index + 1) % 8;
     M_COLORS::DateColor_index = (M_COLORS::ClockColor_index + 1 + rand(7)) % 8;
 
-    if(M_COLORS::DateColor_index == M_COLORS::ClockColor_index)  {
+    if(M_COLORS::DateColor_index == M_COLORS::ClockColor_index)  
         M_COLORS::DateColor_index = (M_COLORS::DateColor_index + 1) % 8;
-    }
 
     CheckeredBorders(M_COLORS::ClockColor(), M_COLORS::DateColor());
     

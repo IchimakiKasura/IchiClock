@@ -3,40 +3,70 @@
 
 extern inline void updateFunction(void (*func)(), uint32_t &ms, int16_t t);
 
-const uint16_t melody[5][43] PROGMEM = {
+const uint16_t melodies[5][86] PROGMEM = {
     // 0 - Konosuba ED
-    { 523, 523, 587, 659, 659, 784, 880, 1047, 880, 784, 659, 659,
-      587, 523, 880, 784, 659, 587, 392, 523, 523, 587, 523 },
+    {
+        24, // total notes
+    /*  note:      duration:  */
+        523,      600,
+        523,      350,
+        587,      100,
+        659,      600,
+        659,      350,
+        784,      100,
+        880,      350,
+        1047,     100,
+        880,      350,
+        784,      100,
+        659,      600,
+        659,      350,
+        587,      100,
+        523,      600,
+        880,      600,
+        784,      350,
+        659,      100,
+        587,      350,
+        392,      100,
+        523,      600,
+        523,      350,
+        587,      100,
+        523,      1225
+    },
     // 1 - FNAF
-    { 880, 698, 784, 523, 0, 523, 784, 880, 698 },
+    {
+        10,
+        880,820, 698,820, 784,820, 523,820, 0,300,
+        523,820, 784,820, 880,820, 698,1000
+    },
     // 2 - Westminster Chime
-    { 330, 415, 370, 247, 0, 0, 330, 370, 415, 330, 0, 0,
-      415, 330, 370, 247, 0, 0, 247, 370, 415, 330 },
+    {
+        23,
+        330,420, 415,420, 370,420, 247,735, 0,200, 0,200,
+        330,420, 370,420, 415,420, 330,735, 0,200, 0,200,
+        415,420, 330,420, 370,420, 247,735, 0,200, 0,200,
+        247,420, 370,420, 415,420, 330,735
+    },
     // 3 - Night
-    { 262, 262, 392, 392, 440, 440, 392, 0,
-      349, 349, 330, 330, 294, 294, 262 },
+    {
+        16,
+        262,400, 262,400, 392,400, 392,400,
+        440,400, 440,400, 392,200, 0,400,
+        349,400, 349,400, 330,400, 330,400,
+        294,400, 294,400, 262,200
+    },
     // 4 - Custom
-    { 392, 330, 262, 440, 392, 330, 392, 349, 392, 349, 294, 330,
-      659, 523, 392, 523, 392, 330, 440, 392, 330, 523, 392, 196,
-      440, 494, 392, 349, 294, 262, 262, 294,
-      330, 349, 392, 440, 494, 523, 587, 659, 698, 784 }
+    {
+        44,
+        392,444, 330,223, 262,444, 440,445, 392,1111,
+        330,444, 392,445, 349,444, 392,222, 349,445,
+        294,444, 330,445, 659,222, 523,222, 392,222,
+        523,222, 392,223, 330,444, 440,445, 392,222,
+        330,444, 523,445, 392,889, 196,666,
+        440,445, 494,444, 392,222, 349,445, 294,444, 262,445,
+        262,35, 294,35, 330,35, 349,35, 392,35, 440,35,
+        494,35, 523,35, 587,35, 659,35, 698,35, 784,35
+    }
 };
-
-const uint16_t noteDurations[5][43] PROGMEM = {
-    { 600, 350, 100, 600, 350, 100, 350, 100, 350, 100, 600, 350,
-      100, 600, 600, 350, 100, 350, 100, 600, 350, 100, 1225 },
-    { 820, 820, 820, 820, 300, 820, 820, 820, 1000 },
-    { 420, 420, 420, 735, 200, 200, 420, 420, 420, 735, 200, 200,
-      420, 420, 420, 735, 200, 200, 420, 420, 420, 735 },
-    { 400, 400, 400, 400, 400, 400, 200,
-      400, 400, 400, 400, 400, 400, 200, 200 },
-    { 444, 223, 444, 445, 1111, 444, 445, 444, 222, 445, 444, 445,
-      222, 222, 222, 222, 223, 444, 445, 222, 444, 445, 889, 666,
-      445, 444, 222, 445, 444, 445,
-      35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35 }
-};
-
-const uint8_t melodyLengths[5] PROGMEM = { 23, 9, 22, 15, 43 };
 
 void quickBeepStart(int duration = 50) {
     tone(
@@ -53,12 +83,9 @@ struct JingleState {
     uint8_t jingle;
     uint8_t index  = 0;
     uint8_t delays = 0;
-
     uint32_t nextTime = 0;
-
     bool playing = false;
     bool borders = false;
-
 } jingleState;
 
 void Jingle(uint8_t jingleNumber,
@@ -66,14 +93,14 @@ void Jingle(uint8_t jingleNumber,
             bool changeBorders = false,
             uint8_t delays     = 0)
 {
-    uint8_t len = pgm_read_byte_near(&melodyLengths[jingleNumber]);
+    uint8_t len = pgm_read_byte_near(&melodies[jingleNumber][0]);
 
     if (blocking) {
 
         for (uint8_t i = 0; i < len; i++) {
-
-            uint16_t note = pgm_read_word_near(&melody[jingleNumber][i]);
-            uint16_t dur  = pgm_read_word_near(&noteDurations[jingleNumber][i]);
+            uint8_t n = 1 + i * 2;
+            uint16_t note = pgm_read_word_near(&melodies[jingleNumber][n]);
+            uint16_t dur = pgm_read_word_near(&melodies[jingleNumber][n + 1]);
 
             if (note) {
                 tone(
@@ -100,7 +127,6 @@ void Jingle(uint8_t jingleNumber,
         }
 
     } else {
-
         jingleState.jingle   = jingleNumber;
         jingleState.index    = 0;
         jingleState.delays   = delays;
@@ -118,49 +144,59 @@ void updateJingle() {
 
     if (!jingleState.playing) return;
 
-    uint8_t len = pgm_read_byte_near(&melodyLengths[jingleState.jingle]);
+    uint8_t len = pgm_read_byte_near(&melodies[jingleState.jingle][0]);
 
-    
     if (jingleState.borders)
         updateFunction([](){Draw.TextColorChange();}, lastBorder, 500);
 
     if (jingleState.index >= len) {
         jingleState.playing = false;
+
         noTone(
-            #ifdef CUSTOM_PINS
+        #ifdef CUSTOM_PINS
             BUZZER
-            #else
+        #else
             5
-            #endif
+        #endif
         );
+
         M_COLORS::Load();
         Draw.ReDraw();
         return;
     }
 
-    uint16_t note = pgm_read_word_near(&melody[jingleState.jingle][jingleState.index]);
-    uint16_t dur = pgm_read_word_near(&noteDurations[jingleState.jingle][jingleState.index]);
+    uint8_t n = 1 + jingleState.index * 2;
+
+    uint16_t note = pgm_read_word_near(&melodies[jingleState.jingle][n]);
+
+    uint16_t dur = pgm_read_word_near(&melodies[jingleState.jingle][n + 1]);
 
     if (!playing) {
-        if (note) tone(
+
+        if (note)
+            tone(
             #ifdef CUSTOM_PINS
-            BUZZER
+                BUZZER
             #else
-            5
+                5
             #endif
             , note);
+
         end = systemTime + dur + jingleState.delays;
         playing = true;
     }
 
     if (playing && systemTime >= end) {
-        if (note) noTone(
+
+        if (note)
+            noTone(
             #ifdef CUSTOM_PINS
-            BUZZER
+                BUZZER
             #else
-            5
+                5
             #endif
-        );
+            );
+
         playing = false;
         jingleState.nextTime = systemTime + 30;
         jingleState.index++;

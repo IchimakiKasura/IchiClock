@@ -120,7 +120,6 @@ void initialize() {
     // mRTC.sync();
 }
 
-// non-blocking boilerplate idfk
 inline void updateFunction(void (*func)(), uint32_t &ms, int16_t t) {
     if (systemTime - ms < t) return;
     func();
