@@ -13,12 +13,12 @@ const uint16_t megumin_colors[] PROGMEM = {
   0xB269  // #B34D4C LOW_EYE
 };
 struct Rect {
-  uint8_t x, y, w, h, colorId;
+  int8_t  x, y, w, h, colorId;
   int8_t  x_repeat;
   int8_t  y_repeat;
 };
 // format { x, y, w, h, color, xOffset_repeat, yOffset_repeat }
-const Rect rects[] PROGMEM = {
+const Rect meguLogo[] PROGMEM = {
   {11, 0, 8, 1, 0, 0, 0}, {10, 1,10, 1, 0, 0, 0}, { 9, 2,12, 1, 0, 0, 0}, { 8, 3,14, 1, 0, 0, 0}, { 7, 4,16, 1, 0, 0, 0}, { 7, 5,18, 1, 0, 0, 0},
   { 6, 6,15,14, 0, 0, 0}, { 5, 8,17,12, 0, 0, 0}, { 3,11,21, 2, 0, 0, 0}, { 2,12,23, 2, 0, 0, 0}, { 1,13,25, 1, 0, 0, 0}, { 0,14, 3, 1, 0,24, 0},
   { 4,11,19, 6, 0, 0, 0}, { 6,20, 3, 2, 0,12, 0}, { 7,22, 1, 1, 0,12, 0}, {23, 6, 1, 1, 0, 2, 0}, {24, 7, 2, 1, 0, 0, 0}, {11, 1, 5, 1, 1, 0, 0},

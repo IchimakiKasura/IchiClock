@@ -17,11 +17,11 @@ public:
         ORANGE
     };
 
-    static uint16_t ClockColor() {
+    inline static uint16_t ClockColor() {
         return pgm_read_word(&colors[ClockColor_index]);
     }
 
-    static uint16_t DateColor() {
+    inline static uint16_t DateColor() {
         return pgm_read_word(&colors[DateColor_index]);
     }
 

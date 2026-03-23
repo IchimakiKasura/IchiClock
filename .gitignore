@@ -1,3 +1,7 @@
 TFT_SIMULATE/script.js
 IchiClock (old)
+private.c
+# custom rtc that does not require RTCLib (it only saves 2% ffs)
+# has some few bugs/issues for now
+mod_rtc.h
 # MeguClock

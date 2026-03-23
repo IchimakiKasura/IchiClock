@@ -4,7 +4,7 @@
 #include "../assets/meguminLogo.h"
 #include "../config/ColorConfig.h"
 
-class DrawUI {
+class DrawUI : private M_RTC {
 private:
     MeguClock_ST7735* _tft;
     int16_t _clockX;
@@ -23,16 +23,16 @@ public:
     bool blinkState = true;
     uint32_t lastBlink = 0;
     DrawUI() = default;
-    void init(uint8_t cs, uint8_t dc, uint8_t rst);
+    void init(uint8_t, uint8_t, uint8_t);
     void Header(byte t);
-    void Time(const DateTime &t = now);
-    void Date(const DateTime &t = now);
+    void Time(const DateTime&);
+    void Date(const DateTime&);
     void Bottom(const char* t);
     void SystemBoot();
     void FakeLoading();
-    void CheckeredBorders(uint16_t fillColor = 0, uint16_t dashColor = 0);
-    void TextColorChange(bool saveColor = false);
-    void ReDraw(const DateTime &t = now);
+    void CheckeredBorders(uint16_t, uint16_t );
+    void TextColorChange(bool saveColor);
+    void ReDraw(const DateTime&);
     void bg() { _tft->fillScreen(0x40A3); }
 } Draw;
 
@@ -69,15 +69,27 @@ void DrawUI::_CenteredText(const args t,const int16_t &y,const int16_t &s,const 
 }
 
 void DrawUI::_Logo(int x, int y, uint8_t scale) {
-    for (uint16_t i = 0; i < sizeof(rects)/sizeof(Rect); i++) {
+    for (uint16_t i = 0; i < 62; i++) {
         Rect r;
 
-        memcpy_P(&r, &rects[i], sizeof r);
+        memcpy_P(&r, &meguLogo[i], sizeof r);
 
         uint16_t color = pgm_read_word(&megumin_colors[r.colorId]);
 
-        _tft->fillRect(x+((r.x-14)+r.x_repeat)*scale,y+(r.y-13)*scale,r.w*scale,r.h*scale,color);
-        _tft->fillRect(x+(r.x-14)*scale,y+((r.y-13)+r.y_repeat)*scale,r.w*scale,r.h*scale,color);
+        _tft->fillRect(
+            x+((r.x-14)+r.x_repeat)*scale,
+            y+(r.y-13)*scale,
+            r.w*scale,
+            r.h*scale,
+            color
+        );
+        _tft->fillRect(
+            x+(r.x-14)*scale,
+            y+((r.y-13)+r.y_repeat)*scale,
+            r.w*scale,
+            r.h*scale,
+            color
+        );
     }
 }
 
@@ -102,12 +114,12 @@ void DrawUI::Header(byte t) {
     _Logo(19,22,1); _Logo(109,22,1);
 }
 
-void DrawUI::Time(const DateTime &t = now) {
+void DrawUI::Time(const DateTime &t = g_now) {
     _clearLine(50, 30);
 
     char Buf[3];
-    uint8_t h12 = mRTC.getCurrentHour(t);
-    const char* ampm = mRTC.isRTC ? _hideField(FIELD_AMPM) ? "--" : mRTC.getCurrentMidday(t) : "??";
+    uint8_t h12 = getCurrentHour(t);
+    const char* ampm = mRTC.isRTC ? _hideField(FIELD_AMPM) ? "--" : getCurrentMidday(t) : "??";
 
     if (!h12) h12 = 12;
     
@@ -135,7 +147,7 @@ void DrawUI::Time(const DateTime &t = now) {
     // _Logo(64,80,3);
 }
 
-void DrawUI::Date(const DateTime &t = now) {
+void DrawUI::Date(const DateTime &t = g_now) {
     _clearLine(105, 22);
 
     char Buf[10];
@@ -150,7 +162,7 @@ void DrawUI::Date(const DateTime &t = now) {
 
     if(mRTC.isRTC)
     {
-        _tft->print(hideMo ? "--- " : strcpy_P(Buf, monthNames[t.month()-1]));
+        _tft->print(hideMo ? "--- " : getCurrentMonth(t));
 
         if (!hideDay) sprintf(Buf, "%02d, ", t.day());
         _tft->print(hideDay ? "--, " : Buf);
@@ -158,7 +170,7 @@ void DrawUI::Date(const DateTime &t = now) {
         if (!hideYr) sprintf(Buf, "%04d", t.year());
         _tft->print(hideYr ? "----" : Buf);
 
-        _CenteredText(strcpy_P(Buf, daysFull[now.dayOfTheWeek()]), 105 + 10, DATE_SIZE, c);
+        _CenteredText(strcpy_P(Buf, daysFull[t.dayOfTheWeek()]), 105 + 10, DATE_SIZE, c);
     } else _tft->print(F("  RtcError"));
 }
 
@@ -217,6 +229,11 @@ void DrawUI::CheckeredBorders(uint16_t fillColor = 0, uint16_t dashColor = 0) {
     }
 }
 
+void DrawUI::ReDraw(const DateTime &t = g_now) {
+    Time(t);
+    Date(t);
+}
+
 void DrawUI::TextColorChange(bool saveColor = false) {
     M_COLORS::ClockColor_index = (M_COLORS::ClockColor_index + 1) % 8;
     M_COLORS::DateColor_index = (M_COLORS::ClockColor_index + 1 + rand(7)) % 8;
@@ -226,13 +243,7 @@ void DrawUI::TextColorChange(bool saveColor = false) {
 
     CheckeredBorders(M_COLORS::ClockColor(), M_COLORS::DateColor());
     
-    Time();
-    Date();
+    ReDraw();
 
     if (saveColor) M_COLORS::Save();
-}
-
-void DrawUI::ReDraw(const DateTime &t = now) {
-    Time(t);
-    Date(t);
 }

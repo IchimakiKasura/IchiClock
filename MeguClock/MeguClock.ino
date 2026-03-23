@@ -18,7 +18,7 @@ int main() {
         mRTC.isRTC = mRTC.rtcConnected();
 
         if (mRTC.isRTC) {
-            now = mRTC.rtc.now();
+            g_now = mRTC.now();
             
             #ifndef CUSTOM_PINS
                 adjustHeld = !(PIND & (1 << 3));
@@ -30,14 +30,13 @@ int main() {
 
             updateFunction(handleBothButtons, lastCheck, 15);
 
-            CheckAlarm(now.hour(), now.minute(), now.second());
+            CheckAlarm(g_now.hour(), g_now.minute(), g_now.second());
         }
 
         if (mRTC.isRTC && !lastRTCState) 
             Draw.ReDraw();
         else if (!mRTC.isRTC && lastRTCState) {
-            DateTime zero(0,0,0,0,0,0);
-            Draw.ReDraw(zero);
+            Draw.ReDraw({0,0,0,0,0,0});
         }
 
         lastRTCState = mRTC.isRTC;
@@ -46,12 +45,12 @@ int main() {
 
 void timeUpdate() {
     if (!editMode) {
-        if (now.minute() != lastTime.minute() ||
-            now.hour()   != lastTime.hour()   ||
-            now.day()    != lastTime.day()) {
+        if (g_now.minute() != lastTime.minute() ||
+            g_now.hour()   != lastTime.hour()   ||
+            g_now.day()    != lastTime.day()) {
 
             Draw.ReDraw();
-            lastTime = now;
+            lastTime = g_now;
             quickBeepStart();
         }
         return;
@@ -60,14 +59,13 @@ void timeUpdate() {
     updateFunction([](){
         Draw.blinkState = !Draw.blinkState;
 
-        if (selected != FIELD_HOUR && !h_edited && now.hour() != mRTC.h)
-            mRTC.h = now.hour();
+        if (selected != FIELD_HOUR && !h_edited && g_now.hour() != mRTC.h)
+            mRTC.h = g_now.hour();
 
-        if (selected != FIELD_MIN && !m_edited && now.minute() != mRTC.m)
-            mRTC.m = now.minute();
+        if (selected != FIELD_MIN && !m_edited && g_now.minute() != mRTC.m)
+            mRTC.m = g_now.minute();
 
-        DateTime temp(mRTC.y, mRTC.mo, mRTC.d, mRTC.h, mRTC.m, now.second());
-        Draw.ReDraw(temp);
+        Draw.ReDraw({mRTC.y, mRTC.mo, mRTC.d, mRTC.h, mRTC.m, g_now.second()});
     }, Draw.lastBlink, 700);
 }
 

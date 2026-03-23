@@ -11,7 +11,7 @@ bool editMode = false,
      m_edited = false,
      lastRTCState = false;
 
-DateTime now, lastTime;
+DateTime g_now, lastTime;
 uint8_t bottomIndex = 0;
 static uint8_t lastBottomIndex = -1;
 
@@ -20,11 +20,6 @@ uint32_t systemTime,
          borderLastUpdate = 0,
          lastUpdate = 0,
          lastCheck = 0;
-
-const char monthNames[][5] PROGMEM = {
-  "JAN ","FEB ","MAR ","APR ","MAY ","JUN ",
-  "JUL ","AUG ","SEP ","OCT ","NOV ","DEC "
-};
 
 const char daysFull[][10] PROGMEM = {
   "Sunday",
