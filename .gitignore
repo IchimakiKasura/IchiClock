@@ -8,7 +8,7 @@ rtc (Legacy).h
 private.c
 
 # bin folder is where the 'arduino-cli.exe' placed
-bin
+bin/arduino-cli.exe
 
 # symlink folders
 MeguClock_DS3231 (symlink)

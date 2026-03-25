@@ -1,3 +1,0 @@
-#!/bin/bash
-
-bin/arduino-cli compile --fqbn arduino:avr:nano MeguClock/MeguClock.ino -vvv
