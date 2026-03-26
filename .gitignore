@@ -4,8 +4,6 @@
 IchiClock (Legacy)
 rtc (Legacy).h
 
-private.c
-
 # bin folder is where the 'arduino-cli.exe' placed
 bin/arduino-cli.exe
 
