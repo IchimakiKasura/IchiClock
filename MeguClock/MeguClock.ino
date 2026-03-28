@@ -108,8 +108,8 @@ void initialize()
     M_COLORS::Load();
     Draw.SystemBoot();
 
-    // Jingle(CHIISANA_BOKENSHA_JINGLE, true);
-    // delay(100);
+    Jingle(CHIISANA_BOKENSHA_JINGLE, true);
+    delay(100);
 
     Draw.FakeLoading();
 
