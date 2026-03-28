@@ -2,11 +2,11 @@
 
 uint16_t selectPressStart = 0,
          adjustPressTime = 0,
-         adjustHoldStart = 0;
+         adjustHoldStart = 0,
+         lastSelect = 0,
+         lastAdjust = 0;
 bool adjustWaitingSecondTap = false,
      selectIgnoreRelease = false;
-uint16_t lastSelect = 0,
-         lastAdjust = 0;
 
 extern inline void updateFunction(void (*func)(), uint16_t &ms, uint16_t t);
 

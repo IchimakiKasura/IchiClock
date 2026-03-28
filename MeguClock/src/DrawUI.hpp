@@ -2,7 +2,7 @@
 #include <MeguClock_ST7735.h>
 #include <MeguClock_DS3231.h>
 #include "assets/meguminLogo.h"
-#include "config/ColorConfig.h"
+#include "config/ColorConfig.hpp"
 
 enum Field
 {
@@ -20,17 +20,17 @@ class DrawUI
 {
 private:
     MeguClock_ST7735 *_tft;
-    int16_t _clockX;
+    uint8_t _clockX;
     bool _clockBoundsCached = false,
          _timeDrawnErr = false,
          _dateDrawnErr = false;
 
     void _cacheClockBounds();
     inline bool _hideField(const Field &f);
-    inline void _clearLine(const int16_t &y, const int16_t &h);
+    inline void _clearLine(const uint8_t &y, const uint8_t &h);
     template <typename T>
-    void _CenteredText(const T str, const int16_t &y, const int16_t &size, const uint16_t &color);
-    void _Logo(int x, int y, uint8_t scale);
+    void _CenteredText(const T str, const uint8_t &y, const uint8_t &size, const uint16_t &color);
+    void _Logo(uint8_t x, uint8_t y, uint8_t scale);
 
 public:
     bool blinkState = true,
@@ -69,13 +69,13 @@ inline bool DrawUI::_hideField(const Field &f)
     return Draw.editMode && selected == f && !adjustHeld && !blinkState;
 }
 
-inline void DrawUI::_clearLine(const int16_t &y, const int16_t &h)
+inline void DrawUI::_clearLine(const uint8_t &y, const uint8_t &h)
 {
     _tft->fillRect(3, y, 122, h, 0x40A3);
 }
 
 template <typename T>
-void DrawUI::_CenteredText(const T t, const int16_t &y, const int16_t &s, const uint16_t &c)
+void DrawUI::_CenteredText(const T t, const uint8_t &y, const uint8_t &s, const uint16_t &c)
 {
     int16_t x1, y1;
     uint8_t w, h;
@@ -87,9 +87,9 @@ void DrawUI::_CenteredText(const T t, const int16_t &y, const int16_t &s, const 
     _tft->print(t);
 }
 
-void DrawUI::_Logo(int x, int y, uint8_t scale)
+void DrawUI::_Logo(uint8_t x, uint8_t y, uint8_t scale)
 {
-    for (uint16_t i = 0; i < 62; i++)
+    for (uint8_t i = 0; i < 62; i++)
     {
         Rect r;
 
@@ -250,18 +250,12 @@ void DrawUI::CheckeredBorders(uint16_t fillColor = M_COLORS::ClockColor(), uint1
 
     for (int i = 0; i < 4; i++)
         for (int x = 1; x < 127; x += 8)
-        {
-            _tft->fillRect(x, hY[i], 4, 2, dashColor);
+            _tft->fillRect(x, hY[i], 4, 2, dashColor),
             _tft->fillRect(x + 4, hY[i], 4, 2, fillColor);
-        }
-    
 
     for (int y = 1; y < 160; y += 2)
-        for (int i = 0; i < 2; i++)
-        {
-            int x = (i == 0) ? 1 : 126;
+        for (int i = 0, x = 1; i < 2; i++, x = 126)
             _tft->fillRect(x, y, 2, 4, (y % 8 < 4) ? dashColor : fillColor);
-        }
 }
 
 void DrawUI::ReDraw(const DateTime &t = rtc.s_now)

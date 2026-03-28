@@ -4,19 +4,16 @@
 class M_COLORS
 {
 public:
-    static uint8_t ClockColor_index;
-    static uint8_t DateColor_index;
+    static uint8_t ClockColor_index, DateColor_index;
 
     static const uint16_t colors[8];
 
-    inline static uint16_t ClockColor();
-    inline static uint16_t DateColor();
-    inline static void Save();
-    inline static void Load();
+    inline static uint16_t ClockColor(), DateColor();
+    inline static void Save(), Load();
 };
 
-uint8_t M_COLORS::ClockColor_index = 1;
-uint8_t M_COLORS::DateColor_index = 2;
+uint8_t M_COLORS::ClockColor_index = 1,
+        M_COLORS::DateColor_index = 2;
 
 const uint16_t M_COLORS::colors[8] PROGMEM = {
     BLUE,

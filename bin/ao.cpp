@@ -2,7 +2,13 @@
  
     Simple Arduino's Verify and Upload.
 
-    Specifically coded for Win32 only. 
+    Specifically coded for Win32 only.
+
+    build:
+        (if outside)
+        - g++ bin/ao.cpp -o bin/ao && g++ bin/ao.cpp -o bin/s_ao -static -DSTATIC
+        (if in current folder)
+        - g++ ao.cpp -o ao && g++ ao.cpp -o -s_ao -static -DSTATIC
 
     Author: Ichimaki Kasura
 
@@ -50,17 +56,21 @@ fpath getExeDirectory() {
 }
 
 void help() {
-    //cout << "usage s_ao [ option... ]" << endl; // for static libraries
+    cout << "Customized Arduino Verify/Upload for MeguClock.\n" << endl;
+#ifdef STATIC
+    cout << "usage s_ao [ option... ]" << endl;
+#else
     cout << "usage ao [ option... ]" << endl;
+#endif
     cout << "-v - verify     -u - upload" << endl;
 }
 
 int main(int argc, char* argv[]) {
-    string sketch, cmd;
+    string options, cmd, verifyCmd;
     fpath arduinoCli = getExeDirectory() / "arduino-cli.exe", ino;
 
     if (argc > 1) {
-        sketch = argv[1];
+        options = argv[1];
     
         if (!fs::exists(arduinoCli)) {
             cout << "arduino-cli.exe not found in " << arduinoCli.parent_path().string() << "\n"
@@ -73,14 +83,24 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        fpath ard_relative = fs::relative(arduinoCli, fs::current_path()),
-              ino_relative = fs::relative(ino, fs::current_path());
+        string ard_relative = fs::relative(arduinoCli, fs::current_path()).string(),
+               ino_relative = fs::relative(ino, fs::current_path()).string(),
+               ino_lib = ino_relative,
+               library_relative = ino_lib.erase(ino_lib.find("MeguClock.ino"), 13),
+               buildProperties = "--build-property compiler.c.extra_flags=\"-Os\" "
+                                 "--build-property compiler.cpp.extra_flags=\"-Os\" "
+                                 "--build-property compiler.c.elf.extra_flags=\"-Wl,--gc-sections\" "
+                                 "--build-property compiler.cpp.elf.extra_flags=\"-Wl,--gc-sections\" "
+                                 "--build-property compiler.cpp.extra_flags=\"-ffunction-sections -fdata-sections\" "
+                                 "--build-property compiler.c.extra_flags=\"-ffunction-sections -fdata-sections\" ";
+                                 
+        verifyCmd = ard_relative + " compile --fqbn arduino:avr:nano " + ino_relative + " -v --build-property compiler.cpp.extra_flags=\"-std=gnu++17\" " + buildProperties + " --libraries " + library_relative + "libraries";
+               
+        if(options == "-v")
+            cmd = verifyCmd;
+        else if (options == "-u") {
 
-        if(sketch == "-v") 
-            cmd = ard_relative.string() + " compile --fqbn arduino:avr:nano " + ino_relative.string() + " -vvv";
-        else if (sketch == "-u") {
-
-            string rar = ard_relative.string() + " board list";
+            string rar = ard_relative + " board list";
             string boards = runAndRead(rar.c_str());
 
             if (boards.find("COM") == string::npos) {
@@ -94,13 +114,13 @@ int main(int argc, char* argv[]) {
                 size_t end = boards.find_first_of(" \n\r", pos);
                 comport = boards.substr(pos, end - pos);
             }
-            string verifyCmd = ard_relative.string() + " compile --fqbn arduino:avr:nano " + ino_relative.string() + " -vvv";
-            cmd = verifyCmd + " && " + ard_relative.string() + " upload -p " + comport + " --fqbn arduino:avr:nano " + ino_relative.string() + " -vvv";
+            cmd = verifyCmd + " && " + ard_relative + " upload -p " + comport + " --fqbn arduino:avr:nano " + ino_relative + " -v";
         } else {
             help();
             return 0;
         }
 
+        cout << "EXECUTING: " + cmd << endl;
         system(cmd.c_str());
 
         return 0;

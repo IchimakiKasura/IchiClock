@@ -45,4 +45,4 @@
         - `s_now` -> _built-in static variable for 'now' named 's_now'_
 
 # Usage
-- Put the folders at the arduino libraries.
+- Put the folders at the arduino libraries or add `--libraries ./libraries` _(if you're using arduino cli)_ when uploading.

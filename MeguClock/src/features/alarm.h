@@ -6,7 +6,8 @@ struct Alarms
     uint8_t Hours[5], Melodies[5];
 };
 
-const Alarms alarm PROGMEM = {
+const Alarms alarm PROGMEM =
+{
     {
         "FNAF YAY!",
         "good morning :>",
@@ -33,7 +34,6 @@ void CheckAlarm(int h, int m, int s, bool test = false)
         lastHour = h;
     }
     for (uint8_t i = 0; i < sizeof(alarm.Hours) / sizeof(alarm.Hours[0]); i++)
-    {
         if (pgm_read_byte(&alarm.Hours[i]) == h)
         {
             char buffer[sizeof(alarm.Messages[i])];
@@ -42,5 +42,4 @@ void CheckAlarm(int h, int m, int s, bool test = false)
             Jingle(pgm_read_byte(&alarm.Melodies[i]), false, i == 0);
             break;
         }
-    }
 }

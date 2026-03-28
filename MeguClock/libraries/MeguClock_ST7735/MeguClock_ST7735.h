@@ -42,8 +42,8 @@ protected:
     void displayInit(const uint8_t *addr);
     void charBounds(unsigned char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
     struct {          
-        SPIClass *_spi; 
-        SPISettings settings;
+        SPIClass *_spi = &SPI; 
+        SPISettings settings = SPISettings(16000000, MSBFIRST, SPI_MODE0);
     } hwspi;
     uint8_t _rst;
     uint8_t _cs;

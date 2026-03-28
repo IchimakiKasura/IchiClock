@@ -38,17 +38,18 @@ wirings:
 Run:
 - do `bin/ao -v` or `bin/s_ao -v` for verify and `bin/ao -u` or `bin/s_ao -u` to upload to the nearest comport. _(can be modified on ao.cpp)_
     - _(s_ao.exe is a static build while ao.exe is built without linked libraries)_
+    - If you're planning to upload this using Arduino IDE, be sure to add the [libraries](https://github.com/IchimakiKasura/MeguClock/tree/main/MeguClock/libraries) to the arduino library folder.
 
 # More about
 - Fully independent, doesn't require other heavy ahh libraries as I've scrap most of unused shits and make a new out of it.
 ```bash
 Used library                      Version
-Modified DS3231 for MEGU-CLOCK    0.6.7   
+Modified DS3231 for MEGU-CLOCK    0.6.9
 Wire                              1.0     
-Modified ST7735 for MEGU-CLOCK    0.6.7   
+Modified ST7735 for MEGU-CLOCK    0.6.9
 SPI                               1.0     
 EEPROM                            2.0     
 ```
 - `Wire`, `SPI`, `EEPROM` are literally built-in
 
-_Feel free to use my modified [library](https://github.com/IchimakiKasura/MeguClock/tree/main/MeguClock%20(Libraries))_
+_Feel free to use my modified [library](https://github.com/IchimakiKasura/MeguClock/tree/main/MeguClock/libraries)_

@@ -1,6 +1,4 @@
 #pragma once
-#include <MeguClock_DS3231.h>
-#include "rand.h"
 
 bool adjustHeld = false,
      h_edited = false,
@@ -10,18 +8,16 @@ bool adjustHeld = false,
 MeguClock_DS3231 rtc;
 DateTime lastTime;
 
-uint8_t bottomIndex = 0;
-static uint8_t lastBottomIndex = -1;
-
+uint8_t bottomIndex,
+        lastBottomIndex = -1;
 
 uint16_t systemTime,
-         lastBottomUpdate = 0,
-         borderLastUpdate = 0,
-         lastUpdate = 0,
-         lastCheck = 0;
+         lastBottomUpdate,
+         borderLastUpdate,
+         lastUpdate ,
+         lastCheck;
 
-const char bottomTextBuffer[20];
-const char bottomMessages[][20] PROGMEM = {
+const char bottomTextBuffer[20], bottomMessages[][20] PROGMEM = {
     "Compiling reality",
     "Explosion magic!",
     "Debugging time...",

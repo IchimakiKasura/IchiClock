@@ -123,7 +123,6 @@ static const uint8_t PROGMEM
     @param rst reset pin #
 */
 MeguClock_ST7735::MeguClock_ST7735(int8_t cs, int8_t dc, int8_t rst) : _rst(rst), _cs(cs), _dc(dc)  {
-    hwspi._spi = &SPI;
     _width = TFT_WIDTH;
     _height = TFT_HEIGHT;
     cursor_y = cursor_x = 0;
@@ -136,7 +135,6 @@ MeguClock_ST7735::MeguClock_ST7735(int8_t cs, int8_t dc, int8_t rst) : _rst(rst)
 void MeguClock_ST7735::init() {
     DDRB = (1 << _rst)|(1 << _dc)|(1 << _cs);
     PORTB |= (1 << _rst)|(1 << _dc)|(1 << _cs);
-    hwspi.settings = SPISettings(16000000, MSBFIRST, SPI_MODE0);
     if(hwspi._spi) hwspi._spi->begin();
     startWrite();
     displayInit(Rcmd1);

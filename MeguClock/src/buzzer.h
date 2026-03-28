@@ -95,9 +95,8 @@ void Jingle(uint8_t jingleNumber,
     if (blocking)
     {
 
-        for (uint8_t i = 0; i < len; i++)
+        for (uint8_t n, i = 0; i < len; i++, n = 1 + i * 2)
         {
-            uint8_t n = 1 + i * 2;
             uint16_t note = pgm_read_word_near(&melodies[jingleNumber][n]);
             uint16_t dur = pgm_read_word_near(&melodies[jingleNumber][n + 1]);
 
@@ -130,10 +129,9 @@ void Jingle(uint8_t jingleNumber,
     }
     else
     {
+        jingleState = {};   // refreshes
         jingleState.jingle = jingleNumber;
-        jingleState.index = 0;
         jingleState.delays = delays;
-        jingleState.nextTime = 0;
         jingleState.playing = true;
         jingleState.borders = changeBorders;
     }

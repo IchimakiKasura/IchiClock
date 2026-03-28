@@ -65,13 +65,10 @@ DateTime::DateTime(const __FlashStringHelper *date, const __FlashStringHelper *t
     memcpy_P(buff, date, sizeof(buff));
     m = 0;
     for (uint8_t i = 0; i < 12; i++)
-    {
         if (buff[0] == __months[i][0] && buff[1] == __months[i][1] && buff[2] == __months[i][2])
         {
-            m = i + 1;
-            break;
+            m = i + 1; break;
         }
-    }
     d = conv2d(buff + 4);
     yOff = conv2d(buff + 9);
     memcpy_P(buff, time, 8);

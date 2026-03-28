@@ -23,7 +23,7 @@ public:
     uint8_t h, m, mo, d; uint16_t y;
 
     void init();
-    inline bool rtcConnected();
+    bool rtcConnected();
     DateTime now();
     void adjust(const DateTime &dt);
     void Load();

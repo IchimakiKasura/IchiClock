@@ -3,6 +3,8 @@
 
     A custom digital clock built on Arduino, inspired by Megumin.
 
+    Peak optimization shit.
+
     Features:
         - Fake loading because god knows its just a simple mcu.
         - Customizable uh colors
@@ -16,6 +18,7 @@
             - 10:00 PM `Short ahh Twinkle star smh`
         - has random ahh messages every 10 seconds at the bottom. *(can be customized through code ofc)*
         - has an epic border.
+        - Uses only 65%? of program storage space whaaat? idfk.
 
     - Includes modified libraries (Reduced Flash Storage)
         - MeguClock_DS3231 (Originally from Adafruit RTCLib)
@@ -24,7 +27,7 @@
     Author: Ichimaki Kasura
 **************************************************************************/
 #include <Arduino.h>
-#include "src/includes.hpp"
+#include "src/includes.h"
 
 inline void updateFunction(void (*func)(), uint16_t &ms, uint16_t t)
 {
@@ -85,18 +88,28 @@ void initialize()
     init();
 
     rtc.init();
+
     // rtc.sync();
 
+// #define RESET_COLORS
+#ifdef RESET_COLORS
+    EEPROM.update(0, ClockColor_index);
+    EEPROM.update(1, DateColor_index);
+#endif
+       
 #ifndef CUSTOM_PINS
     Draw.init(2, 1, 0);
 #else
     Draw.init(TFT_CS, TFT_DC, TFT_RST);
 #endif
+
+    M_COLORS::Load();
+
     M_COLORS::Load();
     Draw.SystemBoot();
 
-    Jingle(CHIISANA_BOKENSHA_JINGLE, true);
-    delay(100);
+    // Jingle(CHIISANA_BOKENSHA_JINGLE, true);
+    // delay(100);
 
     Draw.FakeLoading();
 
