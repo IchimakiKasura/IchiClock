@@ -102,9 +102,6 @@ void initialize()
 #else
     Draw.init(TFT_CS, TFT_DC, TFT_RST);
 #endif
-
-    M_COLORS::Load();
-
     M_COLORS::Load();
     Draw.SystemBoot();
 
